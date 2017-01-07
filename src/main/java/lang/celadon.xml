@@ -2,7 +2,7 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit trunk//EN" "https://gwt.googlesource.com/gwt/+/master/./distro-source/core/src/gwt-module.dtd">
 <!-- To compile to Gwt, you need to reference this file in your master .gwt.xml
      file (usually called GdxDefinition.gwt.xml) as follows:
-     <inherits name='celadon' />
+     <inherits name='lang.celadon' />
   -->
 <module>
 	<source path="celadon" />

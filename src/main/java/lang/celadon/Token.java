@@ -1,8 +1,11 @@
-package celadon;
+package lang.celadon;
 
-import regexodus.Category;
+import regexodus.*;
+
+import java.util.ArrayList;
 
 /**
+ * Celadon token data class, and a static tokenizer method.
  * Created by Tommy Ettinger on 1/3/2017.
  */
 public class Token {
@@ -30,10 +33,50 @@ public class Token {
         closing = isClosingBracket;
     }
 
+
+    public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
+            "|({=string}(?:#({=remove}~)?({=mode}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)?)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+            "|({=remove}({=bracket}~+/)(?:[\\d\\D]*?){\\/bracket})" +
+            "|({=open}(?:#({=remove}~)?({=mode}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)?)?({=bracket}[\\(\\[\\{]))" +
+            "|({=close}({=bracket}[\\)\\]\\}]))" +
+            "|({=contents}[:@]+)" +
+            "|({=contents}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)"
+    );
+    public static final Matcher m = pattern.matcher();
+
+    public static ArrayList<Token> tokenize(CharSequence text)
+    {
+        return tokenize(text, 0, text.length());
+    }
+    public static ArrayList<Token> tokenize(CharSequence text, int start, int end)
+    {
+        int len;
+        if(text == null || (len = text.length()) == 0) return new ArrayList<>(0);
+        ArrayList<Token> tokens = new ArrayList<>(32 + len >>> 2);
+        m.setTarget(text, start, end);
+        MatchIterator mi = m.findAll();
+        MatchResult mr;
+        while (mi.hasNext())
+        {
+            mr = mi.next();
+            if(mr.isCaptured("remove"))
+                continue;
+            if(mr.isCaptured("close"))
+                tokens.add(new Token(null, mr.group("bracket"), true, mr.group("mode")));
+            else if(mr.isCaptured("open"))
+                tokens.add(new Token(null, mr.group("bracket"), false, mr.group("mode")));
+            else if(mr.isCaptured("string"))
+                tokens.add(new Token(mr.group("contents"), "'", false, mr.group("mode")));
+            else
+                tokens.add(new Token(mr.group("contents"), null, false, mr.group("mode")));
+        }
+        return tokens;
+    }
+
     public boolean bracketsMatch(Token other) {
-        if (bracket == null || other == null || other.bracket == null) return false;
-        if(closing == other.closing) return false;
-        if (bracket.length() != other.bracket.length()) return false;
+        if (bracket == null || other == null || other.bracket == null
+                || closing == other.closing
+                || bracket.length() != other.bracket.length()) return false;
         for (int l = 0, r = bracket.length() - 1; r >= 0; r--, l++) {
             if (bracket.charAt(l) != Category.matchBracket(other.bracket.charAt(r))) return false;
         }
