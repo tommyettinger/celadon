@@ -1,6 +1,7 @@
 package lang.celadon;
 
 import regexodus.*;
+import squidpony.StringKit;
 
 import java.util.ArrayList;
 
@@ -11,9 +12,31 @@ import java.util.ArrayList;
 public class Token {
     public String contents, bracket, mode;
     public boolean closing;
+    public byte special = 0;
+    public Object solid = null;
     public Token()
     {
         contents = "";
+    }
+
+    static final Token RESERVED = new Token((byte)0, (0.0f / 0.0f) * 3.14f);
+
+    private Token(byte specialty, Object solidState)
+    {
+        special = specialty;
+        solid = solidState;
+    }
+    public static Token stable(Object state)
+    {
+        return new Token((byte)1, state);
+    }
+    public static Token var(IMorph changer)
+    {
+        return new Token((byte)-1, changer);
+    }
+    public static Token fun(IMorph changer)
+    {
+        return new Token((byte)-2, changer);
     }
     public Token(String contents)
     {
@@ -35,9 +58,16 @@ public class Token {
 
 
     public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
-            "|({=string}(?:#({=remove}~)?({=mode}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)?)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+            "|({=string}({=mode}#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+            "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=remove}({=bracket}~+/)(?:[\\d\\D]*?){\\/bracket})" +
-            "|({=open}(?:#({=remove}~)?({=mode}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)?)?({=bracket}[\\(\\[\\{]))" +
+            "|(?:({=double}({=sign}[+-]?)(?:(?:(?:NaN)|(?:Infinity))|(?:({=digits}[0-9]+\\.[0-9]*" +
+              "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))))(?:[fmFM]?))" +
+            "|(?:({=long}({=sign}[+-]?)" +
+              "(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
+              "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
+              "|({=digits}[0-9]+))(?:[lnLN]?))" +
+            "|({=open}({=mode}#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{]))" +
             "|({=close}({=bracket}[\\)\\]\\}]))" +
             "|({=contents}[:@]+)" +
             "|({=contents}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)"
@@ -66,7 +96,40 @@ public class Token {
             else if(mr.isCaptured("open"))
                 tokens.add(new Token(null, mr.group("bracket"), false, mr.group("mode")));
             else if(mr.isCaptured("string"))
-                tokens.add(new Token(mr.group("contents"), "'", false, mr.group("mode")));
+            {
+                if(mr.isCaptured("mode"))
+                    tokens.add(new Token(mr.group("contents"), "'", false, mr.group("mode")));
+                else
+                    tokens.add(stable(mr.group("contents")));
+            }
+            else if(mr.isCaptured("long"))
+            {
+                if(mr.isCaptured("hex"))
+                    tokens.add(stable(mr.group("sign").equals("-")
+                            ? -StringKit.longFromHex(mr.group("digits"))
+                            : StringKit.longFromHex(mr.group("digits"))));
+                if(mr.isCaptured("bin"))
+                    tokens.add(stable(mr.group("sign").equals("-")
+                            ? -StringKit.longFromBin(mr.group("digits"))
+                            : StringKit.longFromBin(mr.group("digits"))));
+                else
+                {
+                    try {
+                        tokens.add(stable(Long.parseLong(mr.group("long"))));
+                    }catch (NumberFormatException nfe)
+                    {
+                        tokens.add(stable(null));
+                    }
+                }
+            }else if(mr.isCaptured("double"))
+            {
+                try {
+                    tokens.add(stable(Double.parseDouble(mr.group("double"))));
+                }catch (NumberFormatException nfe)
+                {
+                    tokens.add(stable(null));
+                }
+            }
             else
                 tokens.add(new Token(mr.group("contents"), null, false, mr.group("mode")));
         }
@@ -98,6 +161,12 @@ public class Token {
 
     @Override
     public int hashCode() {
+        if(special > 0)
+        {
+            if(solid == null)
+                return 0;
+            return solid.hashCode();
+        }
         int z = 0x632BE5AB, result = 1;
         if(contents != null) {
             for (int i = 0; i < contents.length(); i++) {
@@ -120,14 +189,20 @@ public class Token {
 
     @Override
     public String toString() {
+        if(special > 0)
+        {
+            if(solid == null)
+                return "null";
+            return solid.toString();
+        }
         if(bracket != null)
         {
             if(contents != null)
                 return (mode != null)
-                        ? "#" + mode + bracket + contents + bracket
+                        ? mode + bracket + contents + bracket
                         : bracket + contents + bracket;
             return (mode != null)
-                    ? "#" + mode + bracket
+                    ? mode + bracket
                     : bracket;
         }
         if(contents == null) return "null";
