@@ -30,13 +30,17 @@ public class Token {
     {
         return new Token((byte)1, state);
     }
-    public static Token var(IMorph changer)
+    public static Token envoy(IMorph changer)
     {
         return new Token((byte)-1, changer);
     }
-    public static Token fun(IMorph changer)
+    public static Token function(IMorph changer)
     {
         return new Token((byte)-2, changer);
+    }
+    public static Token varying(IMorph changer)
+    {
+        return new Token((byte)-128, changer);
     }
     public Token(String contents)
     {
@@ -67,7 +71,7 @@ public class Token {
               "(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
               "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
               "|({=digits}[0-9]+))(?:[lnLN]?))" +
-            "|({=open}({=mode}#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{]))" +
+            "|({=open}({=mode}(?:#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{])))" +
             "|({=close}({=bracket}[\\)\\]\\}]))" +
             "|({=contents}[:@]+)" +
             "|({=contents}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)"
@@ -92,7 +96,7 @@ public class Token {
             if(mr.isCaptured("remove"))
                 continue;
             if(mr.isCaptured("close"))
-                tokens.add(new Token(null, mr.group("bracket"), true, mr.group("mode")));
+                tokens.add(new Token(null, mr.group("bracket"), true, null));
             else if(mr.isCaptured("open"))
                 tokens.add(new Token(null, mr.group("bracket"), false, mr.group("mode")));
             else if(mr.isCaptured("string"))
@@ -159,6 +163,7 @@ public class Token {
         return mode != null ? mode.equals(token.mode) : token.mode == null;
     }
 
+    // inlined-loop version of CrossHash.Falcon
     @Override
     public int hashCode() {
         if(special > 0)
@@ -202,7 +207,7 @@ public class Token {
                         ? mode + bracket + contents + bracket
                         : bracket + contents + bracket;
             return (mode != null)
-                    ? mode + bracket
+                    ? mode
                     : bracket;
         }
         if(contents == null) return "null";

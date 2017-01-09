@@ -3,7 +3,6 @@ package lang.celadon;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by Tommy Ettinger on 1/3/2017.
@@ -24,8 +23,8 @@ public class TokenizerTest {
                 "{println (* 2 (+ 10 11))}\n" +
                 "(macro replicate [thing] [thing thing])\n" +
                 "(+ {replicate 333})"));
-        ArrayList<Token> tokens = Token.tokenize("'Hello, World!' 42 3.14");
+        ArrayList<Token> tokens = Token.tokenize("'Hello, World!', 42, -Infinity, true, null");
         Context context = new Context();
-        System.out.println(context.parse(Arrays.asList(tokens.get(0), tokens.get(1), tokens.get(2))));
+        System.out.println(context.evaluate(tokens));
     }
 }
