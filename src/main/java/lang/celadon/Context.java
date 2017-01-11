@@ -7,61 +7,47 @@ import java.util.*;
 /**
  * Created by Tommy Ettinger on 1/6/2017.
  */
-public class Context extends HashMap<String, LinkedList<Token>>{
+public class Context extends StackMap<String, Token>{
 
+    protected HashSet<String> reserved;
     public Context()
     {
         super(256, 0.625f);
+        reserved = new HashSet<>(32, 0.625f);
         core();
 
     }
-    public Context(HashMap<String, LinkedList<Token>> existing)
+    public Context(Context existing)
     {
         super(existing);
+        reserved = new HashSet<>(existing.reserved);
+
     }
-    public static LinkedList<Token> makeLL(Object... items)
+
+    void reserve(String name, Object item)
     {
-        LinkedList<Token> ll = new LinkedList<>();
-        for (int i = items.length - 1; i >= 0; i--) {
-            ll.addFirst(Token.stable(items[i]));
-        }
-        return ll;
+        reserved.add(name);
+        put(name, Token.stable(item));
     }
-    public static LinkedList<Token> stableLL(Object item)
+    void reserveSymbol(String name, IMorph item)
     {
-        LinkedList<Token> ll = new LinkedList<>();
-        ll.add(Token.stable(item));
-        return ll;
+        reserved.add(name);
+        put(name, Token.envoy(item));
     }
-    static LinkedList<Token> reserve(Object item)
+    void reserveBracket(String name, IMorph item)
     {
-        LinkedList<Token> ll = new LinkedList<>();
-        ll.addLast(Token.stable(item));
-        ll.addLast(Token.RESERVED);
-        return ll;
-    }
-    static LinkedList<Token> reserveSymbol(IMorph item)
-    {
-        LinkedList<Token> ll = new LinkedList<>();
-        ll.addLast(Token.envoy(item));
-        ll.addLast(Token.RESERVED);
-        return ll;
-    }
-    static LinkedList<Token> reserveBracket(IMorph item)
-    {
-        LinkedList<Token> ll = new LinkedList<>();
-        ll.addLast(Token.varying(item));
-        ll.addLast(Token.RESERVED);
-        return ll;
+        reserved.add(name);
+        put(name, Token.varying(item));
+
     }
     protected void core()
     {
-        put("null", reserve(null));
-        put("true", reserve(true));
-        put("false", reserve(false));
-        put("(", reserveBracket(new IMorph() {
+        reserve("null",null);
+        reserve("true", true);
+        reserve("false", false);
+        reserveBracket("(", new IMorph() {
             @Override
-            public int morph(final List<Token> tokens, int start, int end) {
+            public int morph(Context context, final List<Token> tokens, int start, int end) {
                 Token result;
                 if(start + 2 == end)
                 {
@@ -73,50 +59,34 @@ public class Context extends HashMap<String, LinkedList<Token>>{
                         tokens.remove(i); // this returns a parameter to give to f
                     }
                     result = Token.stable(Collections.emptyList()); // TODO: soon, actually calculate result
-                    tokens.remove(start);
-                    tokens.remove(start);
                 }
+                tokens.remove(start);
+                tokens.remove(start);
                 tokens.add(start, result);
                 return 1;
             }
-        }));
+        });
     }
 
     public Token peek(String key)
     {
         if(containsKey(key))
         {
-            LinkedList<Token> items = get(key);
-            if(items != null && !items.isEmpty())
-                return items.getFirst();
+            return get(key);
         }
         throw new NoSuchElementException("Encountered unknown symbol: " + key);
     }
     public Context push(String key, Token value)
     {
-        LinkedList<Token> items = get(key);
-        if(items != null)
-        {
-            if(items.getLast() != Token.RESERVED)
-                items.addFirst(value);
-        }
-        else
-        {
-            items = new LinkedList<>();
-            items.addFirst(value);
-            put(key, items);
-        }
+        if(!reserved.contains(key))
+            put(key, value);
         return this;
     }
     public Context pop(String key)
     {
-        LinkedList<Token> items = get(key);
-        if(items != null)
+        if(containsKey(key))
         {
-            if(items.getLast() == Token.RESERVED)
-                return this;
-            items.removeFirst();
-            if(items.isEmpty())
+            if(!reserved.contains(key))
                 remove(key);
             return this;
         }
@@ -138,7 +108,7 @@ public class Context extends HashMap<String, LinkedList<Token>>{
             } else if (t.bracket != null && t.contents != null && t.mode != null) {
                 t2 = peek(t.mode);
                 if (t2.special < 0) {
-                    i -= 1 + ((IMorph) t2.solid).morph(tokens, i, i + 1);
+                    i -= 1 + ((IMorph) t2.solid).morph(this, tokens, i, i + 1);
                 } else
                     values.add(t.contents);
             } else if (t.bracket != null) {
@@ -148,14 +118,14 @@ public class Context extends HashMap<String, LinkedList<Token>>{
                     t3 = peek(t2.mode);
                     if(t3.special < 0)
                     {
-                        ((IMorph) t3.solid).morph(tokens, i0, i + 1);
-                        i = i0;
+                        ((IMorph) t3.solid).morph(this, tokens, i0, i + 1);
+                        i = i0 - 1;
                     }
                 } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
                         + ", first bracket is " + t.bracket);
             } else if ((i0 = t.special) < 0)
             {
-                i -= 1 + ((IMorph) t.solid).morph(tokens, i, i - i0);
+                i -= 1 + ((IMorph) t.solid).morph(this, tokens, i, i - i0);
             } else
             {
                 tokens.set(i--, peek(t.contents));

@@ -20,11 +20,12 @@ public interface IMorph {
      * functions, and the closing bracket), and the output is 9 tokens (it includes an extra pair of brackets; the
      * missing modifier doesn't affect the count). Because this particular case produces 9 tokens, the morph method
      * should return 9 here, but for cases where it produces more tokens, it should produce larger return values, too.
+     * @param context the Context used to look up or assign values for names; may be modified
      * @param tokens a List of Token that must be modified by this method, almost always removing the tokens that
-     *               caused this IMorph to evaluate
+     *                caused this IMorph to evaluate
      * @param start the starting index in tokens (inclusive) to read from, typically removing from start until end
      * @param end the ending index in tokens (exclusive) to read until, typically removing from start until end
      * @return the number of tokens
      */
-    int morph(final List<Token> tokens, int start, int end);
+    int morph(Context context, List<Token> tokens, int start, int end);
 }
