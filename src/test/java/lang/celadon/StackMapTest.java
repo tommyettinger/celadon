@@ -2,42 +2,97 @@ package lang.celadon;
 
 import squidpony.squidmath.OrderedMap;
 
+import java.util.Arrays;
+
 /**
  * Created by Tommy Ettinger on 1/11/2017.
  */
 public class StackMapTest {
     public static void main(String[] args)
     {
+        boolean printNormal = false, printUnusual = true;
+
         OrderedMap<String, String> normal;
         StackMap<String, String> unusual;
-        normal = new OrderedMap<>(16, 0.5f);
-        unusual = new StackMap<>(16, 0.5f);
+        normal = new OrderedMap<>(8, 0.5f);
+        unusual = new StackMap<>(8, 0.5f);
 
-        System.out.println("normal (put 0): " + normal);
-        System.out.println("unusual (put 0): " + unusual);
+        String[] keysMixed = {"alpha", "alpha", "alpha", "alpha", "beta", "alpha", "beta", "beta", "gamma", "gamma", "beta", "alpha"},
+                keysSame = {"alpha", "alpha", "alpha", "alpha", "alpha", "alpha", "alpha", "alpha", "alpha", "alpha", "alpha", "alpha"},
+                keys = keysMixed,
+                vals = {"foo", "bar", "baz", "quo", "lim", "per", "ziv", "wel", "fus", "roh", "dah", "aaa"},
+                pr = {"PUT ", "REM "};
 
-        normal.put("alpha", "foo");
-        unusual.put("alpha", "foo");
 
-        System.out.println("normal (put 1): " + normal);
-        System.out.println("unusual (put 1): " + unusual);
+        int[] instructions = {0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0};
+        if(printNormal)
+            System.out.println("normal ( ): " + normal);
+        if(printUnusual)
+            System.out.println("unusual ( ): " + unusual);
 
-        normal.put("alpha", "bar");
-        unusual.put("alpha", "bar");
+        System.out.println(Integer.toBinaryString("alpha".hashCode()));
 
-        System.out.println("normal (put 2): " + normal);
-        System.out.println("unusual (put 2): " + unusual);
+        for (int i = instructions.length; i <= instructions.length; i++) {
+            normal.clear();
+            unusual.clear();
+            for (int j = 0; j < i; j++) {
 
-        System.out.println("normal[0] is " + normal.getAt(0));
-        System.out.println("normal[1] is " + normal.getAt(1));
+                if (instructions[j] == 0) {
+                    normal.put(keys[j], vals[j]);
+                    unusual.put(keys[j], vals[j]);
+                } else {
+                    normal.remove(keys[j]);
+                    unusual.remove(keys[j]);
+                }
 
-        System.out.println("normal['alpha'] is " + normal.get("alpha"));
+                if (printNormal) {
+                    System.out.print("normal (");
+                    for (int k = 0; k <= j; k++) {
+                        System.out.print(pr[instructions[k]]);
+                    }
+                    System.out.println("): " + normal);
 
-        System.out.println("unusual[0] is " + unusual.getAt(0));
-        System.out.println("unusual[1] is " + unusual.getAt(1));
+                    System.out.println("normal[0] is " + normal.getAt(0));
+                    System.out.println("normal[1] is " + normal.getAt(1));
+                    System.out.println("normal[2] is " + normal.getAt(2));
+                    System.out.println("normal[3] is " + normal.getAt(3));
+                    System.out.println("normal[4] is " + normal.getAt(4));
+                    System.out.println("normal[5] is " + normal.getAt(5));
+                    System.out.println("normal[6] is " + normal.getAt(6));
+                    System.out.println("normal[7] is " + normal.getAt(7));
+                    System.out.println("normal[8] is " + normal.getAt(8));
 
-        System.out.println("unusual['alpha'] is " + unusual.get("alpha"));
+                    System.out.println("normal['alpha'] is " + normal.get("alpha"));
+                    System.out.println("normal['beta'] is " + normal.get("beta"));
+                    System.out.println("normal['gamma'] is " + normal.get("gamma"));
+                }
+                if (printUnusual) {
+                    System.out.print("unusual (");
+                    for (int k = 0; k <= j; k++) {
+                        System.out.print(pr[instructions[k]]);
+                    }
+                    System.out.println("): " + unusual);
 
+                    System.out.println("unusual[0] is " + unusual.getAt(0));
+                    System.out.println("unusual[1] is " + unusual.getAt(1));
+                    System.out.println("unusual[2] is " + unusual.getAt(2));
+                    System.out.println("unusual[3] is " + unusual.getAt(3));
+                    System.out.println("unusual[4] is " + unusual.getAt(4));
+                    System.out.println("unusual[5] is " + unusual.getAt(5));
+                    System.out.println("unusual[6] is " + unusual.getAt(6));
+                    System.out.println("unusual[7] is " + unusual.getAt(7));
+                    System.out.println("unusual[8] is " + unusual.getAt(8));
+
+                    System.out.println("unusual['alpha'] is " + unusual.get("alpha"));
+                    System.out.println("unusual['beta'] is " + unusual.get("beta"));
+                    System.out.println("unusual['gamma'] is " + unusual.get("gamma"));
+                }
+            }
+        }
+        
+        
+        /*
+        
         normal.remove("alpha");
         unusual.remove("alpha");
 
@@ -70,7 +125,7 @@ public class StackMapTest {
 
         System.out.println("unusual['alpha'] is " + unusual.get("alpha"));
 
-
-
+         */
+        
     }
 }

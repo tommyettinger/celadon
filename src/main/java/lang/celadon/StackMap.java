@@ -360,12 +360,23 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
         if (needed > n)
             rehash(needed);
     }
-    private V removeEntry(final int pos) {
+    private V removeEntry(final int pos, final int h) {
         final V oldValue = value[pos];
-        value[pos] = null;
+        int posEnd = pos;
+        final K[] key = this.key;
+        // The starting point.
+        if (key[h & mask] != null) {
+            posEnd = h & mask;
+            while (key[(posEnd + 1) & mask] != null)
+                posEnd = (posEnd + 1) & mask;
+        }
+
+        value[pos] = value[posEnd];
+        key[posEnd] = null;
+        value[posEnd] = null;
         size--;
-        fixOrder(pos);
-        shiftKeys(pos);
+        fixOrder(posEnd);
+        shiftKeys(posEnd);
         if (size < maxFill / 4 && n > DEFAULT_INITIAL_SIZE)
             rehash(n / 2);
         return oldValue;
@@ -419,8 +430,8 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
                 //if (hasher.areEqual(curr, k))
                 //    return pos;
                 while (key[pos = (pos + 1) & mask] != null);
-                    //if (hasher.areEqual(curr, k))
-                    //    return pos;
+                //if (hasher.areEqual(curr, k))
+                //    return pos;
             }
         }
         key[pos] = k;
@@ -435,6 +446,55 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
             rehash(arraySize(size + 1, f));
         return -1;
     }
+
+
+
+
+    private int appendAndOverwrite(final K k, final V v, final V v0) {
+
+        K curr;
+        final K[] key = this.key;
+        int pos, primary, secondary;
+        // The starting point.
+        if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null)
+            return insert(k, v);
+        if (hasher.areEqual(k, curr))
+            primary = pos;
+        // There's always an unused entry.
+        else
+        {
+            while (true) {
+                if ((curr = key[pos = (pos + 1) & mask]) == null)
+                    return insert(k, v);
+                if (hasher.areEqual(k, curr))
+                {
+                    primary = pos;
+                    break;
+                }
+            }
+        }
+        key[primary] = k;
+        value[primary] = v;
+
+        // The starting point.
+        if (key[secondary = HashCommon.mix(hasher.hash(k)) & mask] != null) {
+            //if (hasher.areEqual(curr, k))
+            //    return pos;
+            while (key[secondary = (secondary + 1) & mask] != null) ;
+            //if (hasher.areEqual(curr, k))
+            //    return pos;
+        }
+        key[secondary] = k;
+        value[secondary] = v0;
+        last = secondary;
+        order.add(secondary);
+        if (size++ >= maxFill)
+            rehash(arraySize(size + 1, f));
+        return -1;
+    }
+
+
+
     private int insertAt(final K k, final V v, final int idx) {
         int pos;
         if (k == null) {
@@ -477,14 +537,13 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
         return -1;
     }
     public V put(final K k, final V v) {
-        if(!containsKey(k))
+        V v0 = get(k);
+        if(v0 == null)
         {
             insert(k, v);
             return defRetValue;
         }
-        V v0 = remove(k);
-        insert(k, v);
-        insert(k, v0);
+        appendAndOverwrite(k, v, v0);
         return v0;
     }
     public V putAt(final K k, final V v, final int idx) {
@@ -586,17 +645,17 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
         }
         K curr;
         final K[] key = this.key;
-        int pos;
+        int pos, h = HashCommon.mix(hasher.hash(k));
         // The starting point.
-        if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null)
+        if ((curr = key[pos = h & mask]) == null)
             return defRetValue;
         if (hasher.areEqual(k, curr))
-            return removeEntry(pos);
+            return removeEntry(pos, h);
         while (true) {
             if ((curr = key[pos = (pos + 1) & mask]) == null)
                 return defRetValue;
             if (hasher.areEqual(k, curr))
-                return removeEntry(pos);
+                return removeEntry(pos, h);
         }
     }
     private V setValue(final int pos, final V v) {
@@ -1439,14 +1498,14 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
             }
             K curr;
             final K[] key = StackMap.this.key;
-            int pos;
+            int pos, h;
             // The starting point.
-            if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null)
+            if ((curr = key[pos = (h = HashCommon.mix(hasher.hash(k))) & mask]) == null)
                 return false;
             if (hasher.areEqual(curr, k)) {
                 if (value[pos] == null ? v == null : value[pos]
                         .equals(v)) {
-                    removeEntry(pos);
+                    removeEntry(pos, h);
                     return true;
                 }
                 return false;
@@ -1457,7 +1516,7 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
                 if (hasher.areEqual(curr, k)) {
                     if (value[pos] == null ? v == null : value[pos]
                             .equals(v)) {
-                        removeEntry(pos);
+                        removeEntry(pos, h);
                         return true;
                     }
                 }
@@ -2502,7 +2561,7 @@ public class StackMap<K, V> implements SortedMap<K, V>, Serializable {
                 return removeNullEntry();
             return defRetValue;
         }
-        return removeEntry(pos);
+        return removeEntry(pos, pos);
     }
 
     /**
