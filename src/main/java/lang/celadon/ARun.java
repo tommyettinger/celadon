@@ -1,5 +1,6 @@
 package lang.celadon;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,12 +12,25 @@ import java.util.List;
 public abstract class ARun {
     public Context context;
     public List<Token> names, body;
-    public ARun(Context context, final List<Token> tokens, int nameStart, int nameEnd, int bodyStart, int bodyEnd)
+    public ARun(final Context context, final List<Token> tokens,
+                final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
     {
         this.context = new Context(context);
         names = tokens.subList(nameStart, nameEnd);
         body = tokens.subList(bodyStart, bodyEnd);
     }
+    public ARun(final Context context, final List<Token> nameTokens)
+    {
+        this.context = new Context(context);
+        names = nameTokens;
+        body = Collections.emptyList();
+    }
 
+    /**
+     * Abstract method that gets a value from a defined ARun by assigning values to {@link #names} from the items in
+     * {@code parameters} and running through {@link #body}, possibly starting other ARun instances.
+     * @param parameters values to assign to names; must have size no less that the size of {@link #names}
+     * @return a single returned Token; this can potentially be a Token that resolves to an IMorph and so yields more
+     */
     public abstract Token run(List<Token> parameters);
 }

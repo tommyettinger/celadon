@@ -37,6 +37,11 @@ public class Context extends StackMap<String, Token>{
         reserved.add(name);
         put(name, Token.varying(item));
     }
+    void reserveFunction(String name, ARun item)
+    {
+        reserved.add(name);
+        put(name, Token.function(item));
+    }
     protected void core()
     {
         reserve("null",null);
@@ -52,10 +57,15 @@ public class Context extends StackMap<String, Token>{
                 }
                 else {
                     Token f = tokens.remove(start+1);
-                    for (int i = start + 2; i < end - 1; i++) {
-                        tokens.remove(i); // this returns a parameter to give to f
+                    if(f.special > 15)
+                    {
+                        result = ((ARun)f.solid).run(tokens.subList(start+1, end-2));
                     }
-                    result = Token.stable(Collections.emptyList()); // TODO: soon, actually calculate result
+                    else
+                        result = Token.stable(Collections.emptyList());
+                    for (int i = start + 1; i < end - 2; i++) {
+                        tokens.remove(start+1); // this was already given to f
+                    }
                 }
                 tokens.remove(start);
                 tokens.remove(start);
@@ -63,6 +73,26 @@ public class Context extends StackMap<String, Token>{
                 return 1;
             }
         });
+
+        put("+", Token.function(new ARun(this, Token.nameList("left", "right")) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return Token.stable(0);
+                    case 1:
+                        return parameters.get(0);
+                    default: {
+                        if ((parameters.get(0).solid instanceof Double) || (parameters.get(1).solid instanceof Double))
+                            return Token.stable(((Double) parameters.get(0).solid) + ((Double) parameters.get(1).solid));
+                        else
+                            return Token.stable(((Long) parameters.get(0).solid) + ((Long) parameters.get(1).solid));
+                    }
+                }
+            }
+        }));
+
     }
 
     public Token peek(String key)
@@ -90,6 +120,15 @@ public class Context extends StackMap<String, Token>{
         throw new NoSuchElementException("Tried to remove (from scope) an unknown symbol: " + key);
     }
 
+    public void putTokenEntries(Collection<Token> keyColl, Collection<Token> valueColl)
+    {
+        Iterator<Token> ki = keyColl.iterator();
+        Iterator<Token> vi = valueColl.iterator();
+        while (ki.hasNext() && vi.hasNext())
+        {
+            put(ki.next().contents, vi.next());
+        }
+    }
     public List<Object> evaluate(List<Token> tokens)
     {
         if(tokens == null)
@@ -101,13 +140,21 @@ public class Context extends StackMap<String, Token>{
         for (int i = 0; i < tokens.size(); i++) {
             t = tokens.get(i);
             if (t.special > 0) {
-                values.add(t.solid);
+                if(bracketPositions.size == 0)
+                {
+                    values.add(t.solid);
+                }
             } else if (t.bracket != null && t.contents != null && t.mode != null) {
                 t2 = peek(t.mode);
                 if (t2.special < 0) {
                     i -= 1 + ((IMorph) t2.solid).morph(this, tokens, i, i + 1);
                 } else
-                    values.add(t.contents);
+                {
+                    if(bracketPositions.size == 0)
+                    {
+                        values.add(t.contents);
+                    }
+                }
             } else if (t.bracket != null) {
                 if (!t.closing) {
                     bracketPositions.add(i);

@@ -4,6 +4,7 @@ import regexodus.*;
 import squidpony.StringKit;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Celadon token data class, and a static tokenizer method.
@@ -34,14 +35,24 @@ public class Token {
     {
         return new Token((byte)-1, changer);
     }
-    public static Token function(IMorph changer)
+    public static Token function(ARun runner)
     {
-        return new Token((byte)-2, changer);
+        return new Token((byte)16, runner);
     }
     public static Token varying(IMorph changer)
     {
         return new Token((byte)-128, changer);
     }
+
+    public static List<Token> nameList(String... names)
+    {
+        ArrayList<Token> tokens = new ArrayList<>(names.length);
+        for (int i = 0; i < names.length; i++) {
+            tokens.add(new Token(names[i]));
+        }
+        return tokens;
+    }
+
     public Token(String contents)
     {
         this.contents = contents;

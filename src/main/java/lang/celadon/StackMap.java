@@ -324,6 +324,17 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             }
         }
     }
+
+    public void putAll(Collection<K> keyColl, Collection<V> valueColl)
+    {
+        Iterator<K> ki = keyColl.iterator();
+        Iterator<V> vi = valueColl.iterator();
+        while (ki.hasNext() && vi.hasNext())
+        {
+            put(ki.next(), vi.next());
+        }
+    }
+
     private int append(final K k, final V v) {
         int pos;
         if (k == null) {
