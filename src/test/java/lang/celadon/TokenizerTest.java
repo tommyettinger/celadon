@@ -22,7 +22,7 @@ public class TokenizerTest {
                 "{println 'Hello, World!'}\n" +
                 "{println (* 2 (+ 10 11))}\n" +
                 "(macro replicate [thing] [thing thing])\n" +
-                "(+ {replicate 333})"));
+                "(+ {repeat 2 333})"));
         ArrayList<Token> tokens = Token.tokenize("'Hello, World!' 42 -Infinity true null ()");
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

@@ -12,16 +12,14 @@ public class Context extends StackMap<String, Token>{
     protected HashSet<String> reserved;
     public Context()
     {
-        super(256, 0.625f);
+        super(256, 0.625f, Tools.FalconStringHasher.instance);
         reserved = new HashSet<>(32, 0.625f);
         core();
-
     }
     public Context(Context existing)
     {
-        super(existing);
+        super(existing, existing.f, Tools.FalconStringHasher.instance);
         reserved = new HashSet<>(existing.reserved);
-
     }
 
     void reserve(String name, Object item)
@@ -38,7 +36,6 @@ public class Context extends StackMap<String, Token>{
     {
         reserved.add(name);
         put(name, Token.varying(item));
-
     }
     protected void core()
     {

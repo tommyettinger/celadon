@@ -324,7 +324,7 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             }
         }
     }
-    private int insert(final K k, final V v) {
+    private int append(final K k, final V v) {
         int pos;
         if (k == null) {
             if (containsNullKey)
@@ -365,7 +365,7 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         int pos, primary, secondary;
         // The starting point.
         if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null)
-            return insert(k, v);
+            return append(k, v);
         if (hasher.areEqual(k, curr))
             primary = pos;
         // There's always an unused entry.
@@ -373,7 +373,7 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         {
             while (true) {
                 if ((curr = key[pos = (pos + 1) & mask]) == null)
-                    return insert(k, v);
+                    return append(k, v);
                 if (hasher.areEqual(k, curr))
                 {
                     primary = pos;
@@ -445,12 +445,12 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         return -1;
     }
     public V put(final K k, final V v) {
-        V v0 = get(k);
-        if(v0 == null)
+        if(!containsKey(k))
         {
-            insert(k, v);
+            append(k, v);
             return defRetValue;
         }
+        V v0 = get(k);
         appendAndOverwrite(k, v, v0);
         return v0;
     }
@@ -513,6 +513,16 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         }
     }
 
+    /**
+     * Unlike the normal {@link #put(Object, Object)} method, this will overwrite the most recent
+     * key if there is one present, or it will add a new key if there is none.
+     * @param k the key to add or overwrite
+     * @param v the value to associate
+     * @return the previous value associated with k, or {@link #defaultReturnValue()} if there was none
+     */
+    public V set(final K k, final V v) {
+        return super.put(k, v);
+    }
     @SuppressWarnings("unchecked")
     public V remove(final Object k) {
         if ((K) k == null) {
