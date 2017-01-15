@@ -74,7 +74,7 @@ public class Context extends StackMap<String, Token>{
             }
         });
 
-        put("+", Token.function(new ARun(this, Token.nameList("left", "right")) {
+        put("+", Token.function(new ARun(this, Collections.<Token>emptyList()) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -83,12 +83,91 @@ public class Context extends StackMap<String, Token>{
                         return Token.stable(0);
                     case 1:
                         return parameters.get(0);
-                    default: {
-                        if ((parameters.get(0).solid instanceof Double) || (parameters.get(1).solid instanceof Double))
-                            return Token.stable(((Double) parameters.get(0).solid) + ((Double) parameters.get(1).solid));
+                    default:
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                                return Token.stable(parameters.get(0).asDouble() + parameters.get(1).asDouble());
                         else
-                            return Token.stable(((Long) parameters.get(0).solid) + ((Long) parameters.get(1).solid));
-                    }
+                            return Token.stable(parameters.get(0).asLong() + parameters.get(1).asLong());
+                }
+            }
+        }));
+        put("-", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return Token.stable(0);
+                    case 1:
+                        if(parameters.get(0).floating())
+                            return Token.stable(-parameters.get(0).asDouble());
+                        else
+                            return Token.stable(-parameters.get(0).asLong());
+                    default:
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            return Token.stable(parameters.get(0).asDouble() - parameters.get(1).asDouble());
+                        else
+                            return Token.stable(parameters.get(0).asLong() - parameters.get(1).asLong());
+                }
+            }
+        }));
+        put("*", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return Token.stable(1);
+                    case 1:
+                        if(parameters.get(0).floating())
+                            return Token.stable(parameters.get(0).asDouble());
+                        else
+                            return Token.stable(parameters.get(0).asLong());
+                    default:
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            return Token.stable(parameters.get(0).asDouble() * parameters.get(1).asDouble());
+                        else
+                            return Token.stable(parameters.get(0).asLong() * parameters.get(1).asLong());
+                }
+            }
+        }));
+        put("/", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return Token.stable(1);
+                    case 1:
+                        if(parameters.get(0).floating())
+                            return Token.stable(1.0 / parameters.get(0).asDouble());
+                        else
+                            return Token.stable(1L);
+                    default:
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            return Token.stable(parameters.get(0).asDouble() / parameters.get(1).asDouble());
+                        else
+                            return Token.stable(parameters.get(0).asLong() / parameters.get(1).asLong());
+                }
+            }
+        }));
+        put("%", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return Token.stable(0);
+                    case 1:
+                        if(parameters.get(0).floating())
+                            return Token.stable(parameters.get(0).asDouble());
+                        else
+                            return Token.stable(parameters.get(0).asLong());
+                    default:
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            return Token.stable(parameters.get(0).asDouble() % parameters.get(1).asDouble());
+                        else
+                            return Token.stable(parameters.get(0).asLong() % parameters.get(1).asLong());
                 }
             }
         }));

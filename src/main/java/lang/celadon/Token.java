@@ -133,7 +133,7 @@ public class Token {
                         tokens.add(stable(Long.parseLong(mr.group("long"))));
                     }catch (NumberFormatException nfe)
                     {
-                        tokens.add(stable(null));
+                        tokens.add(stable(0x7FFFFFFFFFFFFFFFL));
                     }
                 }
             }else if(mr.isCaptured("double"))
@@ -142,7 +142,7 @@ public class Token {
                     tokens.add(stable(Double.parseDouble(mr.group("double"))));
                 }catch (NumberFormatException nfe)
                 {
-                    tokens.add(stable(null));
+                    tokens.add(stable(Double.POSITIVE_INFINITY));
                 }
             }
             else
@@ -159,6 +159,27 @@ public class Token {
             if (bracket.charAt(l) != Category.matchBracket(other.bracket.charAt(r))) return false;
         }
         return true;
+    }
+
+    public boolean numeric()
+    {
+        return solid != null && solid instanceof Number;
+    }
+    public boolean floating()
+    {
+        return solid != null && (solid instanceof Double || solid instanceof Float);
+    }
+    public double asDouble()
+    {
+        return ((Number)solid).doubleValue();
+    }
+    public long asLong()
+    {
+        return ((Number)solid).longValue();
+    }
+    public String asString()
+    {
+        return (solid != null && solid instanceof String) ? (String)solid : null;
     }
 
     @Override
