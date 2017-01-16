@@ -21,9 +21,10 @@ public class TokenizerTest {
         System.out.println(Token.tokenize("#!/user/env/lang.celadon\n" +
                 "{println 'Hello, World!'}\n" +
                 "{println (* 2 (+ 10 11))}\n" +
-                "(macro replicate [thing] [thing thing])\n" +
+                "(macro repeat [thing] [thing thing])\n" +
                 "(+ {repeat 2 333})"));
-        ArrayList<Token> tokens = Token.tokenize("'Hello, World!' 42 (- -Infinity) true null (% (+ 222 (- 888 444)) (* 312 (/ 5 2)))");
+        ArrayList<Token> tokens = Token.tokenize(
+                "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))");
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
     }

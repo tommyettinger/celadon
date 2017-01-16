@@ -83,11 +83,26 @@ public class Context extends StackMap<String, Token>{
                         return Token.stable(0);
                     case 1:
                         return parameters.get(0);
-                    default:
+                    case 2:
                         if(parameters.get(0).floating() || parameters.get(1).floating())
                                 return Token.stable(parameters.get(0).asDouble() + parameters.get(1).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong() + parameters.get(1).asLong());
+                    default:
+                    {
+                        Number num;
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            num = parameters.get(0).asDouble() + parameters.get(1).asDouble();
+                        else
+                            num = parameters.get(0).asLong() + parameters.get(1).asLong();
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(num instanceof Double || parameters.get(i).floating())
+                                num = num.doubleValue() + parameters.get(i).asDouble();
+                            else
+                                num = num.longValue() + parameters.get(i).asLong();
+                        }
+                        return Token.stable(num);
+                    }
                 }
             }
         }));
@@ -103,11 +118,27 @@ public class Context extends StackMap<String, Token>{
                             return Token.stable(-parameters.get(0).asDouble());
                         else
                             return Token.stable(-parameters.get(0).asLong());
-                    default:
+                    case 2:
                         if(parameters.get(0).floating() || parameters.get(1).floating())
                             return Token.stable(parameters.get(0).asDouble() - parameters.get(1).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong() - parameters.get(1).asLong());
+                    default:
+                    {
+                        Number num;
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            num = parameters.get(0).asDouble() - parameters.get(1).asDouble();
+                        else
+                            num = parameters.get(0).asLong() - parameters.get(1).asLong();
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(num instanceof Double || parameters.get(i).floating())
+                                num = num.doubleValue() - parameters.get(i).asDouble();
+                            else
+                                num = num.longValue() - parameters.get(i).asLong();
+                        }
+                        return Token.stable(num);
+                    }
+
                 }
             }
         }));
@@ -123,11 +154,26 @@ public class Context extends StackMap<String, Token>{
                             return Token.stable(parameters.get(0).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong());
-                    default:
+                    case 2:
                         if(parameters.get(0).floating() || parameters.get(1).floating())
                             return Token.stable(parameters.get(0).asDouble() * parameters.get(1).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong() * parameters.get(1).asLong());
+                    default:
+                    {
+                        Number num;
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            num = parameters.get(0).asDouble() * parameters.get(1).asDouble();
+                        else
+                            num = parameters.get(0).asLong() * parameters.get(1).asLong();
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(num instanceof Double || parameters.get(i).floating())
+                                num = num.doubleValue() * parameters.get(i).asDouble();
+                            else
+                                num = num.longValue() * parameters.get(i).asLong();
+                        }
+                        return Token.stable(num);
+                    }
                 }
             }
         }));
@@ -143,11 +189,26 @@ public class Context extends StackMap<String, Token>{
                             return Token.stable(1.0 / parameters.get(0).asDouble());
                         else
                             return Token.stable(1L);
-                    default:
+                    case 2:
                         if(parameters.get(0).floating() || parameters.get(1).floating())
                             return Token.stable(parameters.get(0).asDouble() / parameters.get(1).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong() / parameters.get(1).asLong());
+                    default:
+                    {
+                        Number num;
+                        if(parameters.get(0).floating() || parameters.get(1).floating())
+                            num = parameters.get(0).asDouble() / parameters.get(1).asDouble();
+                        else
+                            num = parameters.get(0).asLong() / parameters.get(1).asLong();
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(num instanceof Double || parameters.get(i).floating())
+                                num = num.doubleValue() / parameters.get(i).asDouble();
+                            else
+                                num = num.longValue() / parameters.get(i).asLong();
+                        }
+                        return Token.stable(num);
+                    }
                 }
             }
         }));
@@ -199,6 +260,12 @@ public class Context extends StackMap<String, Token>{
         throw new NoSuchElementException("Tried to remove (from scope) an unknown symbol: " + key);
     }
 
+    public Context assign(String key, Token value)
+    {
+        if(!reserved.contains(key))
+            set(key, value);
+        return this;
+    }
     public void putTokenEntries(Collection<Token> keyColl, Collection<Token> valueColl)
     {
         Iterator<Token> ki = keyColl.iterator();
