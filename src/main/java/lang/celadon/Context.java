@@ -56,7 +56,7 @@ public class Context extends StackMap<String, Token>{
             @Override
             public int morph(Context context, final List<Token> tokens, int start, int end) {
                 Token result;
-                if(start + 2 == end)
+                if(start + 2 >= end)
                 {
                     result = Token.stable(Collections.emptyList());
                 }
@@ -82,7 +82,7 @@ public class Context extends StackMap<String, Token>{
             @Override
             public int morph(Context context, final List<Token> tokens, int start, int end) {
                 Token result;
-                if (start + 2 == end) {
+                if (start + 2 >= end) {
                     tokens.remove(start);
                     tokens.remove(start);
                     return 0;
@@ -117,6 +117,28 @@ public class Context extends StackMap<String, Token>{
                 return 0;
             }
         });
+        reserveBracket("[", new IMorph() {
+            @Override
+            public int morph(Context context, final List<Token> tokens, int start, int end) {
+                Token result;
+                if(start + 2 >= end)
+                {
+                    result = Token.stable(new ArrayList<Token>());
+                }
+                else {
+                    ArrayList<Token> tks = new ArrayList<Token>(end - start - 1);
+                    for (int i = start + 1; i < end - 1; i++) {
+                        tks.add(tokens.remove(start + 1));
+                    }
+                    result = Token.stable(tks);
+                }
+                tokens.remove(start);
+                tokens.remove(start);
+                tokens.add(start, result);
+                return 1;
+            }
+        });
+
         reserveMacro("def", new IMorph() {
             @Override
             public int morph(Context context, List<Token> tokens, int start, int end) {
