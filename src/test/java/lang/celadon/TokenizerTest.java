@@ -18,13 +18,14 @@ public class TokenizerTest {
         System.out.println(Token.tokenize("~~/nothing here/~~'something here' ~/nothing here, either/~"));
         System.out.println(Token.tokenize("#modified(+ 1 2 3)"));
 
-        System.out.println(Token.tokenize("#!/user/env/lang.celadon\n" +
-                "{println 'Hello, World!'}\n" +
-                "{println (* 2 (+ 10 11))}\n" +
-                "(macro repeat [thing] [thing thing])\n" +
-                "(+ {repeat 2 333})"));
+        System.out.println(Token.tokenize("#!/user/env/celadon\n" +
+                "(println 'Hello, World!')\n" +
+                "(println (* 2 (+ 10 11)))\n" +
+                "{macro replicate [times thing] (repeat times thing)}\n" +
+                "(+ {replicate 2 333})"));
         ArrayList<Token> tokens = Token.tokenize(
-                "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))");
+                "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
+                        "{def ten (+ 5 5)} ten");
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
     }

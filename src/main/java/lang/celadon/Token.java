@@ -39,9 +39,17 @@ public class Token {
     {
         return new Token((byte)16, runner);
     }
+    public static Token macro(IMorph runner)
+    {
+        return new Token((byte)8, runner);
+    }
     public static Token varying(IMorph changer)
     {
         return new Token((byte)-128, changer);
+    }
+    public static Token quoter(IMorph changer)
+    {
+        return new Token((byte)-127, changer);
     }
 
     public static List<Token> nameList(String... names)
