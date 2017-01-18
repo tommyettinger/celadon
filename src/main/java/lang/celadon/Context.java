@@ -1,6 +1,7 @@
 package lang.celadon;
 
 import squidpony.squidmath.IntVLA;
+import squidpony.squidmath.OrderedMap;
 
 import java.util.*;
 
@@ -138,6 +139,29 @@ public class Context extends StackMap<String, Token>{
                 return 1;
             }
         });
+        reserveBracket("#map[", new IMorph() {
+            @Override
+            public int morph(Context context, final List<Token> tokens, int start, int end) {
+                Token result;
+                if(start + 2 >= end)
+                {
+                    result = Token.stable(new OrderedMap<Token, Token>());
+                }
+                else {
+                    OrderedMap<Token, Token> tks = new OrderedMap<Token, Token>(end - start - 1);
+                    for (int i = start + 1; i < end - 2; i+=2) {
+                        tks.put(tokens.remove(start + 1), tokens.remove(start + 1));
+                    }
+                    if((end - start & 1) == 1)
+                        tokens.remove(start+1);
+                    result = Token.stable(tks);
+                }
+                tokens.remove(start);
+                tokens.remove(start);
+                tokens.add(start, result);
+                return 1;
+            }
+        });
 
         reserveMacro("def", new IMorph() {
             @Override
@@ -146,7 +170,7 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     int pt = step(tokens, start+1);
-                    push(name, tokens.get(pt));
+                    set(name, tokens.get(pt));
                 }
                 return 0;
             }
