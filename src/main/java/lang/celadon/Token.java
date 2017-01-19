@@ -189,6 +189,10 @@ public class Token {
     {
         return (solid != null && solid instanceof String) ? (String)solid : null;
     }
+    public boolean asBoolean()
+    {
+        return solid != null && !solid.equals(Boolean.FALSE);
+    }
 
     @Override
     public boolean equals(Object o) {

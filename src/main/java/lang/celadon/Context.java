@@ -103,9 +103,8 @@ public class Context extends StackMap<String, Token>{
                 {
                     List<Token> tks = tokens.subList(start + 1, end - 2);
                     int r =((IMorph)f.solid).morph(Context.this, tks, 0, tks.size());
-                    tks.clear();
                     tokens.remove(start);
-                    tokens.remove(start);
+                    tokens.remove(start+r);
                     return r;
                 }
 
@@ -172,7 +171,27 @@ public class Context extends StackMap<String, Token>{
                     int pt = step(tokens, start+1);
                     set(name, tokens.get(pt));
                 }
+                tokens.clear();
                 return 0;
+            }
+        });
+
+        reserveMacro("if", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                context.step(tokens, start);
+                if(tokens.remove(start).asBoolean())
+                {
+                    start = context.step(tokens, start);
+                    for (int i = (start+=1); i < end-1; i++) {
+                        tokens.remove(start);
+                    }
+                }
+                else
+                {
+                    context.step(tokens, context.skip(tokens, start));
+                }
+                return 1;
             }
         });
 
@@ -494,6 +513,57 @@ public class Context extends StackMap<String, Token>{
             }
         }
         return values;
+    }
+
+    public int skip(List<Token> tokens, int start)
+    {
+        if(tokens == null || tokens.isEmpty() || start >= tokens.size())
+            return -1;
+        Token t, t2, t3;
+        int i0;
+        IntVLA bracketPositions = new IntVLA(16);
+        for (int i = start; i < tokens.size(); i++) {
+            t = tokens.get(i);
+            if (t.special > 0) {
+                if(bracketPositions.size == 0)
+                {
+                    tokens.remove(i);
+                    return i;
+                }
+            } else if (t.bracket != null && t.contents != null && t.mode != null) {
+                if(bracketPositions.size == 0) {
+                    tokens.remove(i);
+                    return i;
+                }
+            } else if (t.bracket != null) {
+                if (!t.closing) {
+                    bracketPositions.add(i);
+                } else if (t.bracketsMatch(t2 = tokens.get(i0 = bracketPositions.pop()))) {
+                    t3 = peek(t2.mode);
+                    if(t3.special < 0)
+                    {
+                        for (int j = i0; j < i; j++) {
+                            tokens.remove(i0);
+                        }
+                        return i0;
+                    }
+                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
+                        + ", first bracket is " + t.bracket);
+            }
+            else if(bracketPositions.size == 0) // only happens if quotes have somehow gotten out of a macro
+            {
+                tokens.remove(i);
+                return i;
+            }
+            else
+            {
+                tokens.remove(i);
+                return i;
+            }
+        }
+        return tokens.size();
+
+
     }
 
 }

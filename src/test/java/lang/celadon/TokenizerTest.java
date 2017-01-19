@@ -27,7 +27,8 @@ public class TokenizerTest {
                 "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{def ten (+ 5 5)} ten\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
-                        "#map['hey' m 'you' {def m (+ m 1)} m 'go' {def m (+ m 1)} m 'to' {def m (+ m 1)} m 'ten' {def m ten} m]"
+                        "#map['hey' m 'you' {def m (+ m 1)} m 'go' {def m (+ m 1)} m 'to' {def m (+ m 1)} m 'ten' {def m ten} m]\n" +
+                        "{if false 10 (- 20 40)}"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
