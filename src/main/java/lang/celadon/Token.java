@@ -183,7 +183,13 @@ public class Token {
     }
     public long asLong()
     {
-        return ((Number)solid).longValue();
+        if(solid != null) {
+            if (solid instanceof Number)
+                return ((Number) solid).longValue();
+            else if (solid instanceof Boolean)
+                return ((Boolean) solid) ? 1L : 0L;
+        }
+        throw new UnsupportedOperationException("Tried to get a long value from an incompatible Token (not a number or a boolean)");
     }
     public String asString()
     {

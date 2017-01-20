@@ -183,7 +183,7 @@ public class Context extends StackMap<String, Token>{
                 if(tokens.remove(start).asBoolean())
                 {
                     start = context.step(tokens, start);
-                    for (int i = (start+=1); i < end-1; i++) {
+                    for (int i = ++start; i < end-1; i++) {
                         tokens.remove(start);
                     }
                 }
@@ -194,6 +194,25 @@ public class Context extends StackMap<String, Token>{
                 return 1;
             }
         });
+
+        reserveMacro("=", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start + 1 < end)
+                {
+                    String name = tokens.remove(start).contents;
+                    int pt = step(tokens, start);
+                    Token tk = tokens.get(pt);
+                    set(name, tk);
+                    tokens.clear();
+                    tokens.add(tk);
+                    return 1;
+                }
+                tokens.clear();
+                return 0;
+            }
+        });
+
 
         put("+", Token.function(new ARun(this, Collections.<Token>emptyList()) {
             @Override

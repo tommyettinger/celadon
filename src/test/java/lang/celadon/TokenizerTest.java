@@ -25,9 +25,9 @@ public class TokenizerTest {
                 "(+ {replicate 2 333})"));
         ArrayList<Token> tokens = Token.tokenize(
                 "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
-                        "{def ten (+ 5 5)} ten\n" +
+                        "{= ten (+ 5 5)}\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
-                        "#map['hey' m 'you' {def m (+ m 1)} m 'go' {def m (+ m 1)} m 'to' {def m (+ m 1)} m 'ten' {def m ten} m]\n" +
+                        "#map['hey' m 'you' {= m (+ m 1)} 'go' {def m (+ m 1)} m 'to' {= m (+ m 1)} 'ten' {= m ten}]\n" +
                         "{if false 10 (- 20 40)}"
         );
         Context context = new Context();
