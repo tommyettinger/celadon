@@ -263,4 +263,12 @@ public class Token {
         if(contents == null) return "null";
         return contents;
     }
+
+    public boolean numericallyEqual(Token token) {
+        if(!numeric() || !token.numeric())
+            return false;
+        if(floating() || token.floating())
+            return asDouble() == token.asDouble();
+        return asLong() == token.asLong();
+    }
 }

@@ -214,6 +214,36 @@ public class Context extends StackMap<String, Token>{
         });
 
 
+        put("==", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return Token.stable(true);
+                    case 1:
+                        return Token.stable(true);
+                    case 2:
+                        return Token.stable((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(1)))
+                                || parameters.get(0).solid == parameters.get(1).solid
+                                || parameters.get(0).numericallyEqual(parameters.get(1)));
+                    default:
+                    {
+                        if(!((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(1)))
+                                || parameters.get(0).solid == parameters.get(1).solid
+                                || parameters.get(0).numericallyEqual(parameters.get(1))))
+                            return Token.stable(false);
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(!((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(i)))
+                                    || parameters.get(0).solid == parameters.get(i).solid
+                                    || parameters.get(0).numericallyEqual(parameters.get(i))))
+                                return Token.stable(false);
+                        }
+                        return Token.stable(true);
+                    }
+                }
+            }
+        }));
         put("+", Token.function(new ARun(this, Collections.<Token>emptyList()) {
             @Override
             public Token run(List<Token> parameters) {
@@ -225,7 +255,7 @@ public class Context extends StackMap<String, Token>{
                         return parameters.get(0);
                     case 2:
                         if(parameters.get(0).floating() || parameters.get(1).floating())
-                                return Token.stable(parameters.get(0).asDouble() + parameters.get(1).asDouble());
+                            return Token.stable(parameters.get(0).asDouble() + parameters.get(1).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong() + parameters.get(1).asLong());
                     default:
