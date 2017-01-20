@@ -431,12 +431,12 @@ public class Context extends StackMap<String, Token>{
                     t3 = peek(t2.mode);
                     if(t3.special < 0)
                     {
+                        if(t2.bracket.equals("{"))
+                            ql--;
                         if(ql == 0) {
                             ((IMorph) t3.solid).morph(this, tokens, i0, i + 1);
                             i = i0 - 1;
                         }
-                        if(t2.bracket.equals("{"))
-                            ql--;
                     }
                 } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
                         + ", first bracket is " + t.bracket);
@@ -452,7 +452,7 @@ public class Context extends StackMap<String, Token>{
                 return i;
             }
         }
-        return tokens.size();
+        return -1;
 
 
     }
@@ -461,56 +461,14 @@ public class Context extends StackMap<String, Token>{
         if(tokens == null || tokens.isEmpty())
             return Collections.emptyList();
         List<Object> values = new ArrayList<>(16);
-        Token t, t2, t3;
-        int i0, ql = 0;
-        IntVLA bracketPositions = new IntVLA(16);
-        for (int i = 0; i < tokens.size(); i++) {
-            t = tokens.get(i);
-            if (t.special > 0) {
-                if(bracketPositions.size == 0)
-                {
-                    values.add(t.solid);
-                }
-            } else if (t.bracket != null && t.contents != null && t.mode != null) {
-                t2 = peek(t.mode);
-                if (t2.special < 0) {
-                    i -= 1 + ((IMorph) t2.solid).morph(this, tokens, i, i + 1);
-                } else
-                {
-                    if(bracketPositions.size == 0)
-                    {
-                        values.add(t.contents);
-                    }
-                }
-            } else if (t.bracket != null) {
-                if (!t.closing) {
-                    bracketPositions.add(i);
-                    if(t.bracket.equals("{"))
-                        ql++;
-                } else if (t.bracketsMatch(t2 = tokens.get(i0 = bracketPositions.pop()))) {
-                    t3 = peek(t2.mode);
-                    if(t3.special < 0)
-                    {
-                        if(t2.bracket.equals("{"))
-                            ql--;
-                        if(ql == 0) {
-                            ((IMorph) t3.solid).morph(this, tokens, i0, i + 1);
-                            i = i0 - 1;
-                        }
-                    }
-                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
-                        + ", first bracket is " + t.bracket);
-            } else if ((i0 = t.special) < 0)
-            {
-                i -= 1 + ((IMorph) t.solid).morph(this, tokens, i, i - i0);
-            } else if(ql == 0)
-            {
-                tokens.set(i--, peek(t.contents));
-            }
-            else if(bracketPositions.size == 0) // only happens if quotes have somehow gotten out of a macro
-            {
-                values.add(t.contents);
-            }
+        int n = 0;
+        while (true)
+        {
+            n = step(tokens, n);
+            if(n >= 0)
+                values.add(tokens.get(n++).solid);
+            else
+                break;
         }
         return values;
     }
@@ -550,18 +508,13 @@ public class Context extends StackMap<String, Token>{
                 } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
                         + ", first bracket is " + t.bracket);
             }
-            else if(bracketPositions.size == 0) // only happens if quotes have somehow gotten out of a macro
-            {
-                tokens.remove(i);
-                return i;
-            }
             else
             {
                 tokens.remove(i);
                 return i;
             }
         }
-        return tokens.size();
+        return -1;
 
 
     }
