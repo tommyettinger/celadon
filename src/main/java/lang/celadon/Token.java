@@ -131,7 +131,7 @@ public class Token {
                     tokens.add(stable(mr.group("sign").equals("-")
                             ? -StringKit.longFromHex(mr.group("digits"))
                             : StringKit.longFromHex(mr.group("digits"))));
-                if(mr.isCaptured("bin"))
+                else if(mr.isCaptured("bin"))
                     tokens.add(stable(mr.group("sign").equals("-")
                             ? -StringKit.longFromBin(mr.group("digits"))
                             : StringKit.longFromBin(mr.group("digits"))));

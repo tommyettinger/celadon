@@ -24,14 +24,18 @@ public class TokenizerTest {
                 "{macro replicate [times thing] (repeat times thing)}\n" +
                 "(+ {replicate 2 333})"));
         ArrayList<Token> tokens = Token.tokenize(
-                //"~~/" +
+                "~~/" +
                         "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{= ten (+ 5 5)}\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
                         "#map['hey' m 'you' {= m (+ m 1)} 'go' {def m (+ m 1)} m 'to' {= m (+ m 1)} 'ten' {= m ten}]\n" +
                         "{if false 10 (- 20 40)}\n" +
-                        //"/~~" +
-                        "(>= ten 1.5 1 -Infinity)"
+                        "(>= ten 1.5 1 -Infinity)" +
+                        "/~~" +
+                        "{or false false} {or true false} {or false true} {or true true}" +
+                        "{and false false} {and true false} {and false true} {and true true}" + 
+                        "{or false false} {or 31337 false} {or false 31337} {or 31337 0xBEEF}" +
+                        "{and false false} {and 31337 false} {and false 31337} {and 31337 0xBEEF}"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

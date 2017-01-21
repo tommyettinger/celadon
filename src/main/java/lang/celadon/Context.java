@@ -213,6 +213,67 @@ public class Context extends StackMap<String, Token>{
             }
         });
 
+        reserveMacro("and", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start >= end) {
+                    tokens.clear();
+                    tokens.add(get("true"));
+                }
+                else
+                {
+                    start = context.step(tokens, start);
+                    if(start + 1 == end)
+                    {
+                        Token tk = tokens.get(start);
+                        tokens.clear();
+                        tokens.add(tk);
+                    }
+                    else if(tokens.remove(start).asBoolean())
+                    {
+                        tokens.add(start, tokens.remove(context.step(tokens, start)));
+                    }
+                    else
+                    {
+                        tokens.clear();
+                        tokens.add(get("false"));
+                    }
+                }
+                return 1;
+            }
+        });
+
+        reserveMacro("or", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start >= end) {
+                    tokens.clear();
+                    tokens.add(get("true"));
+                }
+                else
+                {
+                    start = context.step(tokens, start);
+                    Token tk = tokens.get(start);
+                    if(start + 1 == end)
+                    {
+                        tokens.clear();
+                        tokens.add(tk);
+                    }
+                    else if(tk.asBoolean())
+                    {
+                        tokens.clear();
+                        tokens.add(tk);
+                    }
+                    else
+                    {
+                        tk = tokens.get(context.step(tokens, start+1));
+                        tokens.clear();
+                        tokens.add(tk);
+                    }
+                }
+                return 1;
+            }
+        });
 
         put("==", Token.function(new ARun(this, Collections.<Token>emptyList()) {
             @Override
@@ -500,6 +561,48 @@ public class Context extends StackMap<String, Token>{
                             return Token.stable(parameters.get(0).asDouble() % parameters.get(1).asDouble());
                         else
                             return Token.stable(parameters.get(0).asLong() % parameters.get(1).asLong());
+                }
+            }
+        }));
+        put("<<", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 2:
+                        return Token.stable(parameters.get(0).asLong() << parameters.get(1).asLong());
+                    default:
+                    {
+                        return Token.stable(0);
+                    }
+                }
+            }
+        }));
+        put(">>", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 2:
+                        return Token.stable(parameters.get(0).asLong() >> parameters.get(1).asLong());
+                    default:
+                    {
+                        return Token.stable(0);
+                    }
+                }
+            }
+        }));
+        put(">>>", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 2:
+                        return Token.stable(parameters.get(0).asLong() >>> parameters.get(1).asLong());
+                    default:
+                    {
+                        return Token.stable(0);
+                    }
                 }
             }
         }));
