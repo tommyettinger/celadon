@@ -220,30 +220,131 @@ public class Context extends StackMap<String, Token>{
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
                 switch (parameters.size()) {
                     case 0:
-                        return Token.stable(true);
+                        return get("true");
                     case 1:
-                        return Token.stable(true);
+                        return get("true");
                     case 2:
-                        return Token.stable((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(1)))
+                        return ((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(1)))
                                 || parameters.get(0).solid == parameters.get(1).solid
-                                || parameters.get(0).numericallyEqual(parameters.get(1)));
+                                || parameters.get(0).numericallyEqual(parameters.get(1))) ? get("true") : get("false");
                     default:
                     {
                         if(!((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(1)))
                                 || parameters.get(0).solid == parameters.get(1).solid
                                 || parameters.get(0).numericallyEqual(parameters.get(1))))
-                            return Token.stable(false);
+                            return get("false");
                         for (int i = 2; i < parameters.size(); i++) {
                             if(!((parameters.get(0).solid != null && parameters.get(0).solid.equals(parameters.get(i)))
                                     || parameters.get(0).solid == parameters.get(i).solid
                                     || parameters.get(0).numericallyEqual(parameters.get(i))))
-                                return Token.stable(false);
+                                return get("false");
                         }
-                        return Token.stable(true);
+                        return get("true");
                     }
                 }
             }
         }));
+
+        put("<", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return get("true");
+                    case 1:
+                        return get("true");
+                    case 2:
+                        return (parameters.get(0).lt(parameters.get(1))) ? get("true") : get("false");
+                    default:
+                    {
+                        if(!parameters.get(0).lt(parameters.get(1)))
+                            return get("false");
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(!parameters.get(i-1).lt(parameters.get(i)))
+                                return get("false");
+                        }
+                        return get("true");
+                    }
+                }
+            }
+        }));
+
+        put(">", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return get("true");
+                    case 1:
+                        return get("true");
+                    case 2:
+                        return (parameters.get(0).gt(parameters.get(1))) ? get("true") : get("false");
+                    default:
+                    {
+                        if(!parameters.get(0).gt(parameters.get(1)))
+                            return get("false");
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(!parameters.get(i-1).gt(parameters.get(i)))
+                                return get("false");
+                        }
+                        return get("true");
+                    }
+                }
+            }
+        }));
+
+        put("<=", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return get("true");
+                    case 1:
+                        return get("true");
+                    case 2:
+                        return (parameters.get(0).lte(parameters.get(1))) ? get("true") : get("false");
+                    default:
+                    {
+                        if(!parameters.get(0).lte(parameters.get(1)))
+                            return get("false");
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(!parameters.get(i-1).lte(parameters.get(i)))
+                                return get("false");
+                        }
+                        return get("true");
+                    }
+                }
+            }
+        }));
+
+        put(">=", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+            @Override
+            public Token run(List<Token> parameters) {
+                //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
+                switch (parameters.size()) {
+                    case 0:
+                        return get("true");
+                    case 1:
+                        return get("true");
+                    case 2:
+                        return (parameters.get(0).gte(parameters.get(1))) ? get("true") : get("false");
+                    default:
+                    {
+                        if(!parameters.get(0).gte(parameters.get(1)))
+                            return get("false");
+                        for (int i = 2; i < parameters.size(); i++) {
+                            if(!parameters.get(i-1).gte(parameters.get(i)))
+                                return get("false");
+                        }
+                        return get("true");
+                    }
+                }
+            }
+        }));
+
         put("+", Token.function(new ARun(this, Collections.<Token>emptyList()) {
             @Override
             public Token run(List<Token> parameters) {

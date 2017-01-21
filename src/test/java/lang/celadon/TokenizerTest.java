@@ -31,7 +31,7 @@ public class TokenizerTest {
                         "#map['hey' m 'you' {= m (+ m 1)} 'go' {def m (+ m 1)} m 'to' {= m (+ m 1)} 'ten' {= m ten}]\n" +
                         "{if false 10 (- 20 40)}\n" +
                         //"/~~" +
-                        "(== 1.0 1 (- 3 2))"
+                        "(>= ten 1.5 1 -Infinity)"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

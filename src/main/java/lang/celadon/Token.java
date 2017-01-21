@@ -265,10 +265,54 @@ public class Token {
     }
 
     public boolean numericallyEqual(Token token) {
-        if(!numeric() || !token.numeric())
+        if(solid == null || token.solid == null)
             return false;
-        if(floating() || token.floating())
+        if(!(solid instanceof Number && token.solid instanceof Number))
+            return false;
+        if((solid instanceof Double || solid instanceof Float)
+                || (token.solid instanceof Double || token.solid instanceof Float))
             return asDouble() == token.asDouble();
         return asLong() == token.asLong();
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean lt(Token token) {
+        if(solid == null || token.solid == null)
+            return false;
+        if(!(solid instanceof Number && token.solid instanceof Number)) {
+            return solid instanceof Comparable && token.solid instanceof Comparable
+                    && ((Comparable) solid).compareTo(token.solid) < 0;
+        }
+        return (floating() ? asDouble() : asLong()) < (token.floating() ? token.asDouble() : token.asLong());
+    }
+    @SuppressWarnings("unchecked")
+    public boolean gt(Token token) {
+        if(solid == null || token.solid == null)
+            return false;
+        if(!(solid instanceof Number && token.solid instanceof Number)) {
+            return solid instanceof Comparable && token.solid instanceof Comparable
+                    && ((Comparable) solid).compareTo(token.solid) > 0;
+        }
+        return (floating() ? asDouble() : asLong()) > (token.floating() ? token.asDouble() : token.asLong());
+    }
+    @SuppressWarnings("unchecked")
+    public boolean lte(Token token) {
+        if(solid == null || token.solid == null)
+            return false;
+        if(!(solid instanceof Number && token.solid instanceof Number)) {
+            return solid instanceof Comparable && token.solid instanceof Comparable
+                    && ((Comparable) solid).compareTo(token.solid) <= 0;
+        }
+        return (floating() ? asDouble() : asLong()) <= (token.floating() ? token.asDouble() : token.asLong());
+    }
+    @SuppressWarnings("unchecked")
+    public boolean gte(Token token) {
+        if(solid == null || token.solid == null)
+            return false;
+        if(!(solid instanceof Number && token.solid instanceof Number)) {
+            return solid instanceof Comparable && token.solid instanceof Comparable
+                    && ((Comparable) solid).compareTo(token.solid) >= 0;
+        }
+        return (floating() ? asDouble() : asLong()) >= (token.floating() ? token.asDouble() : token.asLong());
     }
 }
