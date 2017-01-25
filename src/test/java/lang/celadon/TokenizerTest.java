@@ -31,11 +31,13 @@ public class TokenizerTest {
                         "#map['hey' m 'you' {= m (+ m 1)} 'go' {def m (+ m 1)} m 'to' {= m (+ m 1)} 'ten' {= m ten}]\n" +
                         "{if false 10 (- 20 40)}\n" +
                         "(>= ten 1.5 1 -Infinity)" +
-                        "/~~" +
                         "{or false false} {or true false} {or false true} {or true true}" +
                         "{and false false} {and true false} {and false true} {and true true}" + 
                         "{or false false} {or 31337 false} {or false 31337} {or 31337 0xBEEF}" +
-                        "{and false false} {and 31337 false} {and false 31337} {and 31337 0xBEEF}"
+                        "{and false false} {and 31337 false} {and false 31337} {and 31337 0xBEEF}" +
+                        "/~~" +
+                        "({fn [a b] (+ a b)} 10 32)" +
+                        "{def add {fn [a b] (+ a b)}} (add 222 444)"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
