@@ -38,8 +38,9 @@ public class TokenizerTest {
                         "/~~" +
                         "({fn [a b] (+ a b)} 10 32)\n" +
                         "{def add {fn [a b] (+ a b)}} (add 222 444)\n" +
-                        "{or false false false} {or 31337 false true} {or false null false null 777} {or 31337 0xBEEF true}\n" +
-                        "{and true 32 64} {and 31337 false true} {and false null false null 777} {and 31337 0xBEEF 0xCAFE}\n"
+                        "{defn add [a b] (add a b)} (add 111 222)\n" +
+                        ";{or false false false} {or 31337 false true} {or false null false null 777} {or 31337 0xBEEF true}\n" +
+                        ";{and true 32 64} {and 31337 false true} {and false null false null 777} {and 31337 0xBEEF 0xCAFE}\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

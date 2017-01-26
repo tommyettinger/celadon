@@ -169,7 +169,7 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     int pt = step(tokens, start+1);
-                    set(name, tokens.get(pt));
+                    push(name, tokens.get(pt));
                 }
                 tokens.clear();
                 return 0;
@@ -215,7 +215,7 @@ public class Context extends StackMap<String, Token>{
 
         reserveMacro("fn", new IMorph() {
             @Override
-            public int morph(Context ctx, List<Token> tokens, final int start, int end) {
+            public int morph(final Context ctx, List<Token> tokens, final int start, int end) {
                 int lastBracket = nextStop(tokens, start);
                 //String b;
                 //while (!((b = tokens.get(lastBracket).bracket) != null && b.equals("]")) && lastBracket < end)
@@ -223,12 +223,14 @@ public class Context extends StackMap<String, Token>{
                 Token f = Token.function(new ARun(ctx, tokens, start + 1, lastBracket, lastBracket + 1, end) {
                     @Override
                     public Token run(List<Token> parameters) {
-                        context.putTokenEntries(names, parameters);
-                        Token r = context.get("null");
-                        while (context.step(body, 0) >= 0)
+                        this.context.putTokenEntries(names, parameters);
+                        List<Token> body2 = new ArrayList<>(body);
+                        Token r = this.context.get("null");
+                        while (this.context.step(body, 0) >= 0)
                         {
                             r = body.remove(0);
                         }
+                        body.addAll(body2);
                         return r;
                     }
                 });
@@ -237,6 +239,22 @@ public class Context extends StackMap<String, Token>{
                 return 1;
             }
         });
+
+        reserveMacro("defn", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start + 2 < end)
+                {
+                    String name = tokens.get(start).contents;
+                    ((IMorph)get("fn").solid).morph(context, tokens, start+1, end);
+                    push(name, tokens.remove(0));
+                    return 0;
+                }
+                tokens.clear();
+                return 0;
+            }
+        });
+
 
         reserveMacro("and", new IMorph() {
             @Override
