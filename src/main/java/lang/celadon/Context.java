@@ -216,10 +216,10 @@ public class Context extends StackMap<String, Token>{
         reserveMacro("fn", new IMorph() {
             @Override
             public int morph(Context ctx, List<Token> tokens, final int start, int end) {
-                int lastBracket = start;
-                String b;
-                while (!((b = tokens.get(lastBracket).bracket) != null && b.equals("]")) && lastBracket < end)
-                    lastBracket++;
+                int lastBracket = nextStop(tokens, start);
+                //String b;
+                //while (!((b = tokens.get(lastBracket).bracket) != null && b.equals("]")) && lastBracket < end)
+                //    lastBracket++;
                 Token f = Token.function(new ARun(ctx, tokens, start + 1, lastBracket, lastBracket + 1, end) {
                     @Override
                     public Token run(List<Token> parameters) {
@@ -248,20 +248,28 @@ public class Context extends StackMap<String, Token>{
                 else
                 {
                     start = context.step(tokens, start);
+                    Token tk;
                     if(start + 1 == end)
                     {
-                        Token tk = tokens.get(start);
+                        tk = tokens.get(start);
                         tokens.clear();
                         tokens.add(tk);
                     }
-                    else if(tokens.remove(start).asBoolean())
-                    {
-                        tokens.add(start, tokens.remove(context.step(tokens, start)));
-                    }
                     else
                     {
-                        tokens.clear();
-                        tokens.add(get("false"));
+                        while ((tk = tokens.remove(start)).asBoolean())
+                        {
+                            if(context.step(tokens, start) < 0) break;
+                        }
+                        if(tokens.isEmpty())
+                        {
+                            tokens.add(tk.asBoolean() ? tk : get("false"));
+                        }
+                        else
+                        {
+                            tokens.clear();
+                            tokens.add(get("false"));
+                        }
                     }
                 }
                 return 1;
@@ -284,16 +292,25 @@ public class Context extends StackMap<String, Token>{
                         tokens.clear();
                         tokens.add(tk);
                     }
-                    else if(tk.asBoolean())
-                    {
-                        tokens.clear();
-                        tokens.add(tk);
-                    }
                     else
                     {
-                        tk = tokens.get(context.step(tokens, start+1));
-                        tokens.clear();
-                        tokens.add(tk);
+                        if (tk.asBoolean())
+                        {
+                            tokens.clear();
+                            tokens.add(tk);
+                        }
+                        else
+                        {
+                            start = context.step(tokens, start);
+                            while (start >= 0 && !(tk = tokens.get(start)).asBoolean()) {
+                                start = context.step(tokens, start+1);
+                            }
+                            tokens.clear();
+                            if(start >= 0)
+                                tokens.add(tk);
+                            else
+                                tokens.add(get("false"));
+                        }
                     }
                 }
                 return 1;
@@ -793,8 +810,44 @@ public class Context extends StackMap<String, Token>{
             }
         }
         return -1;
-
-
+    }
+    public int nextStop(List<Token> tokens, int start)
+    {
+        if(tokens == null || tokens.isEmpty() || start >= tokens.size())
+            return -1;
+        Token t, t2, t3;
+        int i0;
+        IntVLA bracketPositions = new IntVLA(16);
+        for (int i = start; i < tokens.size(); i++) {
+            t = tokens.get(i);
+            if (t.special > 0) {
+                if(bracketPositions.size == 0)
+                {
+                    return i+1;
+                }
+            } else if (t.bracket != null && t.contents != null && t.mode != null) {
+                if(bracketPositions.size == 0) {
+                    return i+1;
+                }
+            } else if (t.bracket != null) {
+                if (!t.closing) {
+                    bracketPositions.add(i);
+                } else if (t.bracketsMatch(t2 = tokens.get(i0 = bracketPositions.pop()))) {
+                    t3 = peek(t2.mode);
+                    if(t3.special < 0)
+                    {
+                        return i; // note this ends before the others, omitting the closing bracket
+                    }
+                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
+                        + ", first bracket is " + t.bracket);
+            }
+            else
+            {
+                if(bracketPositions.size == 0)
+                    return i+1;
+            }
+        }
+        return -1;
     }
 
 }

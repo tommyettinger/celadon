@@ -30,14 +30,16 @@ public class TokenizerTest {
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
                         "#map['hey' m 'you' {= m (+ m 1)} 'go' {def m (+ m 1)} m 'to' {= m (+ m 1)} 'ten' {= m ten}]\n" +
                         "{if false 10 (- 20 40)}\n" +
-                        "(>= ten 1.5 1 -Infinity)" +
-                        "{or false false} {or true false} {or false true} {or true true}" +
-                        "{and false false} {and true false} {and false true} {and true true}" + 
-                        "{or false false} {or 31337 false} {or false 31337} {or 31337 0xBEEF}" +
-                        "{and false false} {and 31337 false} {and false 31337} {and 31337 0xBEEF}" +
+                        "(>= ten 1.5 1 -Infinity)\n" +
+                        "{or false false} {or true false} {or false true} {or true true}\n" +
+                        "{and false false} {and true false} {and false true} {and true true}\n" +
+                        "{or false false} {or 31337 false} {or false 31337} {or 31337 0xBEEF}\n" +
+                        "{and false false} {and 31337 false} {and false 31337} {and 31337 0xBEEF}\n" +
                         "/~~" +
-                        "({fn [a b] (+ a b)} 10 32)" +
-                        "{def add {fn [a b] (+ a b)}} (add 222 444)"
+                        "({fn [a b] (+ a b)} 10 32)\n" +
+                        "{def add {fn [a b] (+ a b)}} (add 222 444)\n" +
+                        "{or false false false} {or 31337 false true} {or false null false null 777} {or 31337 0xBEEF true}\n" +
+                        "{and true 32 64} {and 31337 false true} {and false null false null 777} {and 31337 0xBEEF 0xCAFE}\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
