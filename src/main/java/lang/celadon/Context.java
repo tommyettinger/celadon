@@ -13,13 +13,13 @@ public class Context extends StackMap<String, Token>{
     protected HashSet<String> reserved;
     public Context()
     {
-        super(256, 0.625f, Tools.FalconStringHasher.instance);
+        super(256, 0.625f, Tools.WispStringHasher.instance);
         reserved = new HashSet<>(32, 0.625f);
         core();
     }
     public Context(Context existing)
     {
-        super(existing, existing.f, Tools.FalconStringHasher.instance);
+        super(existing, existing.f, Tools.WispStringHasher.instance);
         reserved = new HashSet<>(existing.reserved);
     }
 
@@ -169,7 +169,7 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     int pt = step(tokens, start+1);
-                    push(name, tokens.get(pt));
+                    set(name, tokens.get(pt));
                 }
                 tokens.clear();
                 return 0;
@@ -217,20 +217,16 @@ public class Context extends StackMap<String, Token>{
             @Override
             public int morph(final Context ctx, List<Token> tokens, final int start, int end) {
                 int lastBracket = nextStop(tokens, start);
-                //String b;
-                //while (!((b = tokens.get(lastBracket).bracket) != null && b.equals("]")) && lastBracket < end)
-                //    lastBracket++;
                 Token f = Token.function(new ARun(ctx, tokens, start + 1, lastBracket, lastBracket + 1, end) {
                     @Override
                     public Token run(List<Token> parameters) {
                         this.context.putTokenEntries(names, parameters);
-                        List<Token> body2 = new ArrayList<>(body);
                         Token r = this.context.get("null");
                         while (this.context.step(body, 0) >= 0)
                         {
                             r = body.remove(0);
                         }
-                        body.addAll(body2);
+                        body.addAll(bodyFixed);
                         return r;
                     }
                 });
@@ -247,7 +243,41 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     ((IMorph)get("fn").solid).morph(context, tokens, start+1, end);
-                    push(name, tokens.remove(0));
+                    set(name, tokens.remove(0));
+                    return 0;
+                }
+                tokens.clear();
+                return 0;
+            }
+        });
+
+        //There are currently issues with calling something other than a solid IMorph or ARun when it is the first
+        //element of a quoted-call form (in curly braces). Since this next macro would produce a solid IMorph only
+        //after it is evaluated, and a quoted-call form prevents that evaluation initially, this doesn't work. But,
+        //defmacro does work, see below.
+        /*
+        reserveMacro("macro", new IMorph() {
+            @Override
+            public int morph(final Context ctx, List<Token> tokens, final int start, int end) {
+                int lastBracket = nextStop(tokens, start);
+                Token f = Token.macro(new Macro(ctx, tokens, start + 1, lastBracket, lastBracket + 1, end));
+                tokens.clear();
+                tokens.add(f);
+                return 1;
+            }
+        });
+        */
+
+        reserveMacro("defmacro", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start + 2 < end)
+                {
+                    String name = tokens.get(start).contents;
+                    int lastBracket = nextStop(tokens, start+1);
+                    Token f = Token.macro(new Macro(context, tokens, start + 2, lastBracket, lastBracket + 1, end));
+                    tokens.clear();
+                    set(name, f);
                     return 0;
                 }
                 tokens.clear();
@@ -335,7 +365,7 @@ public class Context extends StackMap<String, Token>{
             }
         });
 
-        put("==", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("==", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -366,7 +396,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put("<", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("<", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -391,7 +421,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put(">", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put(">", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -416,7 +446,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put("<=", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("<=", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -441,7 +471,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put(">=", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put(">=", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -466,7 +496,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put("+", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("+", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -498,7 +528,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("-", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("-", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -534,7 +564,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("*", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("*", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -569,7 +599,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("/", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("/", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -604,7 +634,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("%", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("%", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -624,7 +654,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("<<", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put("<<", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -638,7 +668,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put(">>", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put(">>", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -652,7 +682,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put(">>>", Token.function(new ARun(this, Collections.<Token>emptyList()) {
+        put(">>>", Token.function(new ARun(this) {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -745,7 +775,9 @@ public class Context extends StackMap<String, Token>{
                     if(t3.special < 0)
                     {
                         if(t2.bracket.equals("{"))
+                        {
                             ql--;
+                        }
                         if(ql == 0) {
                             ((IMorph) t3.solid).morph(this, tokens, i0, i + 1);
                             i = i0 - 1;

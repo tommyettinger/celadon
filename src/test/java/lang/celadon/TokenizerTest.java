@@ -21,10 +21,10 @@ public class TokenizerTest {
         System.out.println(Token.tokenize("#!/user/env/celadon\n" +
                 "(println 'Hello, World!')\n" +
                 "(println (* 2 (+ 10 11)))\n" +
-                "{macro replicate [times thing] (repeat times thing)}\n" +
-                "(+ {replicate 2 333})"));
+                "{defmacro duplicate [thing] [thing thing]}\n" +
+                "(+ {duplicate 333})"));
         ArrayList<Token> tokens = Token.tokenize(
-                "~~/" +
+                //"~~/" +
                         "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{= ten (+ 5 5)}\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
@@ -35,12 +35,11 @@ public class TokenizerTest {
                         "{and false false} {and true false} {and false true} {and true true}\n" +
                         "{or false false} {or 31337 false} {or false 31337} {or 31337 0xBEEF}\n" +
                         "{and false false} {and 31337 false} {and false 31337} {and 31337 0xBEEF}\n" +
-                        "/~~" +
                         "({fn [a b] (+ a b)} 10 32)\n" +
                         "{def add {fn [a b] (+ a b)}} (add 222 444)\n" +
                         "{defn add [a b] (add a b)} (add 111 222)\n" +
-                        ";{or false false false} {or 31337 false true} {or false null false null 777} {or 31337 0xBEEF true}\n" +
-                        ";{and true 32 64} {and 31337 false true} {and false null false null 777} {and 31337 0xBEEF 0xCAFE}\n"
+                        //"/~~" +
+                        "{defmacro dup [a] [a a]} (+ {dup 11} {dup 10}) {dup 23}\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

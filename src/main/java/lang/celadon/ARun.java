@@ -1,7 +1,6 @@
 package lang.celadon;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,18 +12,21 @@ import java.util.List;
 public abstract class ARun {
     public Context context;
     public List<Token> names, body;
+    protected final List<Token> bodyFixed;
     public ARun(final Context context, final List<Token> tokens,
                 final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
     {
         this.context = new Context(context);
         names = new ArrayList<>(tokens.subList(nameStart, nameEnd));
         body = new ArrayList<>(tokens.subList(bodyStart, bodyEnd));
+        bodyFixed = new ArrayList<>(body);
     }
-    public ARun(final Context context, final List<Token> nameTokens)
+    public ARun(final Context context)
     {
         this.context = new Context(context);
-        names = nameTokens;
-        body = Collections.emptyList();
+        names = null;
+        body = null;
+        bodyFixed = null;
     }
 
     /**

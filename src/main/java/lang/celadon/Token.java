@@ -213,7 +213,7 @@ public class Token {
         return mode != null ? mode.equals(token.mode) : token.mode == null;
     }
 
-    // inlined-loop version of CrossHash.Falcon
+    // inlined-loop version of CrossHash.Wisp
     @Override
     public int hashCode() {
         if(special > 0)
@@ -222,24 +222,30 @@ public class Token {
                 return 0;
             return solid.hashCode();
         }
-        int z = 0x632BE5AB, result = 1;
+        int result = 0x9E3779B9, a = 0x632BE5AB, len;
         if(contents != null) {
-            for (int i = 0; i < contents.length(); i++) {
-                result += (z ^= contents.charAt(i) * 0x85157AF5) + 0x62E2AC0D;
+            len = contents.length();
+            for (int i = 0; i < len; i++) {
+                result += (a ^= 0x85157AF5 * contents.charAt(i));
             }
+            result *= (a << 1 | 1);
         }
         if(mode != null) {
-            for (int i = 0; i < mode.length(); i++) {
-                result += (z ^= mode.charAt(i) * 0x85157AF5) + 0x62E2AC0D;
+            len = mode.length();
+            for (int i = 0; i < len; i++) {
+                result += (a ^= 0x85157AF5 * mode.charAt(i));
             }
+            result *= (a << 1 | 1);
         }
-        z += (closing) ? 421 : 0;
+        result += (closing) ? 421 : 0;
         if(bracket != null) {
-            for (int i = 0; i < bracket.length(); i++) {
-                result += (z ^= bracket.charAt(i) * 0x85157AF5) + 0x62E2AC0D;
+            len = bracket.length();
+            for (int i = 0; i < len; i++) {
+                result += (a ^= 0x85157AF5 * bracket.charAt(i));
             }
+            result *= (a << 1 | 1);
         }
-        return result ^ ((z ^ result) >>> 8) * 0x9E3779B9;
+        return result;
     }
 
     @Override
