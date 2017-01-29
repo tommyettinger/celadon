@@ -71,4 +71,31 @@ public class Macro implements IMorph {
         tokens.add(Token.stable(r));
         return 1;
     }
+
+    @Override
+    public String toString()
+    {
+        if(names == null || bodyFixed == null) {
+            return "{macro ~|/non-native/|~)";
+        }
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("{macro [");
+        if(!names.isEmpty()) {
+            sb.append(names.get(0));
+            for (int i = 1; i < names.size(); ++i) {
+                sb.append(' ').append(names.get(i));
+            }
+        }
+        sb.append(" ] ");
+        if(!bodyFixed.isEmpty()) {
+            sb.append(bodyFixed.get(0));
+            for (int i = 1; i < bodyFixed.size(); ++i) {
+                sb.append(' ').append(bodyFixed.get(i));
+            }
+        }
+        sb.append('}');
+        return sb.toString();
+
+    }
+
 }

@@ -83,7 +83,7 @@ public class Token {
     public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
             "|({=string}({=mode}#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
-            "|({=remove}({=bracket}~+/)(?:[\\d\\D]*?){\\/bracket})" +
+            "|({=remove}({=bracket}~+[%~+=*_\\$\\?\\|-]*/)(?:[\\d\\D]*?){\\/bracket})" +
             "|(?:({=double}({=sign}[+-]?)(?:(?:(?:NaN)|(?:Infinity))|(?:({=digits}[0-9]+\\.[0-9]*" +
               "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))))(?:[fmFM]?))" +
             "|(?:({=long}({=sign}[+-]?)" +

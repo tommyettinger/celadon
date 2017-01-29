@@ -36,4 +36,30 @@ public abstract class ARun {
      * @return a single returned Token; this can potentially be a Token that resolves to an IMorph and so yields more
      */
     public abstract Token run(List<Token> parameters);
+
+    @Override
+    public String toString()
+    {
+        if(names == null || bodyFixed == null) {
+            return "{fn ~|/non-native/|~)";
+        }
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("{fn [");
+        if(!names.isEmpty()) {
+            sb.append(names.get(0));
+            for (int i = 1; i < names.size(); ++i) {
+                sb.append(' ').append(names.get(i));
+            }
+        }
+        sb.append(" ] ");
+        if(!bodyFixed.isEmpty()) {
+            sb.append(bodyFixed.get(0));
+            for (int i = 1; i < bodyFixed.size(); ++i) {
+                sb.append(' ').append(bodyFixed.get(i));
+            }
+        }
+        sb.append('}');
+        return sb.toString();
+
+    }
 }
