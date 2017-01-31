@@ -243,7 +243,9 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     ((IMorph)get("fn").solid).morph(context, tokens, start+1, end);
-                    set(name, tokens.remove(0));
+                    Token f = tokens.remove(0);
+                    ((ARun)f.solid).title = name;
+                    set(name, f);
                     return 0;
                 }
                 tokens.clear();
@@ -275,7 +277,7 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     int lastBracket = nextStop(tokens, start+1);
-                    Token f = Token.macro(new Macro(context, tokens, start + 2, lastBracket, lastBracket + 1, end));
+                    Token f = Token.macro(new Macro(context, name, tokens, start + 2, lastBracket, lastBracket + 1, end));
                     tokens.clear();
                     set(name, f);
                     return 0;
@@ -365,7 +367,7 @@ public class Context extends StackMap<String, Token>{
             }
         });
 
-        put("==", Token.function(new ARun(this) {
+        put("==", Token.function(new ARun(this, "==") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -396,7 +398,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put("<", Token.function(new ARun(this) {
+        put("<", Token.function(new ARun(this, "<") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -421,7 +423,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put(">", Token.function(new ARun(this) {
+        put(">", Token.function(new ARun(this, ">") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -446,7 +448,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put("<=", Token.function(new ARun(this) {
+        put("<=", Token.function(new ARun(this, "<=") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -471,7 +473,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put(">=", Token.function(new ARun(this) {
+        put(">=", Token.function(new ARun(this, ">=") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -496,7 +498,7 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
-        put("+", Token.function(new ARun(this) {
+        put("+", Token.function(new ARun(this, "+") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -528,7 +530,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("-", Token.function(new ARun(this) {
+        put("-", Token.function(new ARun(this, "-") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -564,7 +566,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("*", Token.function(new ARun(this) {
+        put("*", Token.function(new ARun(this, "*") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -599,7 +601,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("/", Token.function(new ARun(this) {
+        put("/", Token.function(new ARun(this, "/") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -634,7 +636,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("%", Token.function(new ARun(this) {
+        put("%", Token.function(new ARun(this, "%") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -654,7 +656,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put("<<", Token.function(new ARun(this) {
+        put("<<", Token.function(new ARun(this, "<<") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -668,7 +670,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put(">>", Token.function(new ARun(this) {
+        put(">>", Token.function(new ARun(this, ">>") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl
@@ -682,7 +684,7 @@ public class Context extends StackMap<String, Token>{
                 }
             }
         }));
-        put(">>>", Token.function(new ARun(this) {
+        put(">>>", Token.function(new ARun(this, ">>>") {
             @Override
             public Token run(List<Token> parameters) {
                 //context.putTokenEntries(names, parameters); // commonly called at the start of a normal run impl

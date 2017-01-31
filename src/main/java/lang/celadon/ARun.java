@@ -12,18 +12,30 @@ import java.util.List;
 public abstract class ARun {
     public Context context;
     public List<Token> names, body;
+    public String title;
     protected final List<Token> bodyFixed;
     public ARun(final Context context, final List<Token> tokens,
                 final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
     {
+        this(context, null, tokens, nameStart, nameEnd, bodyStart, bodyEnd);
+    }
+    public ARun(final Context context, final String title, final List<Token> tokens,
+                final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
+    {
         this.context = new Context(context);
+        this.title = title;
         names = new ArrayList<>(tokens.subList(nameStart, nameEnd));
         body = new ArrayList<>(tokens.subList(bodyStart, bodyEnd));
         bodyFixed = new ArrayList<>(body);
     }
     public ARun(final Context context)
     {
+        this(context, null);
+    }
+    public ARun(final Context context, final String title)
+    {
         this.context = new Context(context);
+        this.title = title;
         names = null;
         body = null;
         bodyFixed = null;
@@ -40,8 +52,10 @@ public abstract class ARun {
     @Override
     public String toString()
     {
+        if(title != null)
+            return "{fn " + title + "}";
         if(names == null || bodyFixed == null) {
-            return "{fn ~|/non-native/|~)";
+                return "{fn ~|/unknown name, non-native/|~)";
         }
         StringBuilder sb = new StringBuilder(128);
         sb.append("{fn [");

@@ -13,11 +13,18 @@ import java.util.List;
 public class Macro implements IMorph {
     public Context context;
     public List<Token> names, body;
+    public String title = null;
     protected final List<Token> bodyFixed;
     public Macro(final Context context, final List<Token> tokens,
                  final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
     {
+        this(context, null, tokens, nameStart, nameEnd, bodyStart, bodyEnd);
+    }
+    public Macro(final Context context, final String title, final List<Token> tokens,
+                  final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
+    {
         this.context = new Context(context);
+        this.title = title;
         names = new ArrayList<>(tokens.subList(nameStart, nameEnd));
         body = new ArrayList<>(tokens.subList(bodyStart, bodyEnd));
         bodyFixed = new ArrayList<>(body);
@@ -75,8 +82,11 @@ public class Macro implements IMorph {
     @Override
     public String toString()
     {
+        if(title != null)
+            return "{macro " + title + "}";
+
         if(names == null || bodyFixed == null) {
-            return "{macro ~|/non-native/|~)";
+            return "{macro ~|/unknown name, non-native/|~)";
         }
         StringBuilder sb = new StringBuilder(128);
         sb.append("{macro [");

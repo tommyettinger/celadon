@@ -136,10 +136,12 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
      */
     public StackMap(final K[] keyArray, final V[] valueArray, final float f) {
         this(keyArray.length, f);
-        if (keyArray.length != valueArray.length)
+        if (keyArray.length != valueArray.length) {
             throw new IllegalArgumentException("The key array and the value array have different lengths (" + keyArray.length + " and " + valueArray.length + ")");
-        for (int i = 0; i < keyArray.length; i++)
+        }
+        for (int i = 0; i < keyArray.length; i++) {
             put(keyArray[i], valueArray[i]);
+        }
     }
     /**
      * Creates a new StackMap using the elements of two parallel arrays.
@@ -151,8 +153,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
      */
     public StackMap(final Collection<K> keyColl, final Collection<V> valueColl, final float f) {
         this(keyColl.size(), f);
-        if (keyColl.size() != valueColl.size())
+        if (keyColl.size() != valueColl.size()) {
             throw new IllegalArgumentException("The key array and the value array have different lengths (" + keyColl.size() + " and " + valueColl.size() + ")");
+        }
         Iterator<K> ki = keyColl.iterator();
         Iterator<V> vi = valueColl.iterator();
         while (ki.hasNext() && vi.hasNext())
@@ -235,10 +238,12 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
      */
     public StackMap(final K[] keyArray, final V[] valueArray, final float f, CrossHash.IHasher hasher) {
         this(keyArray.length, f, hasher);
-        if (keyArray.length != valueArray.length)
+        if (keyArray.length != valueArray.length) {
             throw new IllegalArgumentException("The key array and the value array have different lengths (" + keyArray.length + " and " + valueArray.length + ")");
-        for (int i = 0; i < keyArray.length; i++)
+        }
+        for (int i = 0; i < keyArray.length; i++) {
             put(keyArray[i], valueArray[i]);
+        }
     }
     /**
      * Creates a new StackMap with 0.75f as load factor using the elements of two parallel arrays.
@@ -257,16 +262,18 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
     }
     private void ensureCapacity(final int capacity) {
         final int needed = arraySize(capacity, f);
-        if (needed > n)
+        if (needed > n) {
             rehash(needed);
+        }
     }
     private void tryCapacity(final long capacity) {
         final int needed = (int) Math.min(
                 1 << 30,
                 Math.max(2, HashCommon.nextPowerOfTwo((long) Math.ceil(capacity
                         / f))));
-        if (needed > n)
+        if (needed > n) {
             rehash(needed);
+        }
     }
     private V removeEntry(final int pos, final int h) {
         final V oldValue = value[pos];
@@ -275,8 +282,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         // The starting point.
         if (key[h & mask] != null) {
             posEnd = h & mask;
-            while (key[(posEnd + 1) & mask] != null)
+            while (key[(posEnd + 1) & mask] != null) {
                 posEnd = (posEnd + 1) & mask;
+            }
         }
 
         value[pos] = value[posEnd];
@@ -285,8 +293,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         size--;
         fixOrder(posEnd);
         shiftKeys(posEnd);
-        if (size < maxFill / 4 && n > DEFAULT_INITIAL_SIZE)
+        if (size < maxFill / 4 && n > DEFAULT_INITIAL_SIZE) {
             rehash(n / 2);
+        }
         return oldValue;
     }
     private V removeNullEntry() {
@@ -296,17 +305,20 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         value[n] = null;
         size--;
         fixOrder(n);
-        if (size < maxFill / 4 && n > DEFAULT_INITIAL_SIZE)
+        if (size < maxFill / 4 && n > DEFAULT_INITIAL_SIZE) {
             rehash(n / 2);
+        }
         return oldValue;
     }
     /** {@inheritDoc} */
     public void putAll(Map<? extends K, ? extends V> m) {
-        if (f <= .5)
+        if (f <= .5) {
             ensureCapacity(m.size()); // The resulting map will be sized for
-            // m.size() elements
-        else
+        }
+// m.size() elements
+        else {
             tryCapacity(size() + m.size()); // The resulting map will be
+        }
         int n = m.size();
         final Iterator<? extends Entry<? extends K, ? extends V>> i = m
                 .entrySet().iterator();
@@ -338,8 +350,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
     private int append(final K k, final V v) {
         int pos;
         if (k == null) {
-            if (containsNullKey)
+            if (containsNullKey) {
                 return n;
+            }
             containsNullKey = true;
             pos = n;
         } else {
@@ -348,7 +361,8 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             if (key[pos = HashCommon.mix(hasher.hash(k)) & mask] != null) {
                 //if (hasher.areEqual(curr, k))
                 //    return pos;
-                while (key[pos = (pos + 1) & mask] != null);
+                while (key[pos = (pos + 1) & mask] != null) {
+                }
                 //if (hasher.areEqual(curr, k))
                 //    return pos;
             }
@@ -361,8 +375,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             last = pos;
         }
         order.add(pos);
-        if (size++ >= maxFill)
+        if (size++ >= maxFill) {
             rehash(arraySize(size + 1, f));
+        }
         return -1;
     }
 
@@ -375,16 +390,18 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         final K[] key = this.key;
         int pos, primary, secondary;
         // The starting point.
-        if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null)
+        if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null) {
             return append(k, v);
-        if (hasher.areEqual(k, curr))
+        }
+        if (hasher.areEqual(k, curr)) {
             primary = pos;
-        // There's always an unused entry.
+        }// There's always an unused entry.
         else
         {
             while (true) {
-                if ((curr = key[pos = (pos + 1) & mask]) == null)
+                if ((curr = key[pos = (pos + 1) & mask]) == null) {
                     return append(k, v);
+                }
                 if (hasher.areEqual(k, curr))
                 {
                     primary = pos;
@@ -399,7 +416,8 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         if (key[secondary = HashCommon.mix(hasher.hash(k)) & mask] != null) {
             //if (hasher.areEqual(curr, k))
             //    return pos;
-            while (key[secondary = (secondary + 1) & mask] != null) ;
+            while (key[secondary = (secondary + 1) & mask] != null) {
+            }
             //if (hasher.areEqual(curr, k))
             //    return pos;
         }
@@ -407,8 +425,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         value[secondary] = v0;
         last = secondary;
         order.add(secondary);
-        if (size++ >= maxFill)
+        if (size++ >= maxFill) {
             rehash(arraySize(size + 1, f));
+        }
         return -1;
     }
 
@@ -435,7 +454,8 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
                     order.insert(idx, pos);
                     return pos;
                 }*/
-                while (key[pos = (pos + 1) & mask] != null);
+                while (key[pos = (pos + 1) & mask] != null) {
+                }
                 /*
                     if (hasher.areEqual(curr, k))
                     {
@@ -451,8 +471,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             first = last = pos;
         }
         order.insert(idx, pos);
-        if (size++ >= maxFill)
+        if (size++ >= maxFill) {
             rehash(arraySize(size + 1, f));
+        }
         return -1;
     }
     public V put(final K k, final V v) {
@@ -466,10 +487,11 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         return v0;
     }
     public V putAt(final K k, final V v, final int idx) {
-        if (idx <= 0)
+        if (idx <= 0) {
             return putAndMoveToFirst(k, v);
-        else if (idx >= size)
+        } else if (idx >= size) {
             return putAndMoveToLast(k, v);
+        }
 
         if (!containsKey(k)) {
             insertAt(k, v, idx);
@@ -478,8 +500,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
 
 
         if (k == null) {
-            if (containsNullKey)
+            if (containsNullKey) {
                 return removeNullEntry();
+            }
             return defRetValue;
         }
         else {
@@ -488,15 +511,16 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             final K[] key = this.key;
             int pos, idx0 = idx + 1;
             // The starting point.
-            if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null)
+            if ((curr = key[pos = HashCommon.mix(hasher.hash(k)) & mask]) == null) {
                 v0 = defRetValue;
-            else if (hasher.areEqual(k, curr)) {
+            } else if (hasher.areEqual(k, curr)) {
                 final V oldValue = value[pos];
                 value[pos] = null;
                 size--;
                 idx0 = fixOrder(pos);
-                if (idx0 == idx)
+                if (idx0 == idx) {
                     idx0++;
+                }
                 shiftKeys(pos);
                 v0 = oldValue;
             } else {
@@ -509,8 +533,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
                         value[pos] = null;
                         size--;
                         idx0 = fixOrder(pos);
-                        if (idx0 == idx)
+                        if (idx0 == idx) {
                             idx0++;
+                        }
                         shiftKeys(pos);
                         v0 = oldValue;
                         break;
@@ -537,23 +562,28 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
     @SuppressWarnings("unchecked")
     public V remove(final Object k) {
         if ((K) k == null) {
-            if (containsNullKey)
+            if (containsNullKey) {
                 return removeNullEntry();
+            }
             return defRetValue;
         }
         K curr;
         final K[] key = this.key;
         int pos, h = HashCommon.mix(hasher.hash(k));
         // The starting point.
-        if ((curr = key[pos = h & mask]) == null)
+        if ((curr = key[pos = h & mask]) == null) {
             return defRetValue;
-        if (hasher.areEqual(k, curr))
+        }
+        if (hasher.areEqual(k, curr)) {
             return removeEntry(pos, h);
+        }
         while (true) {
-            if ((curr = key[pos = (pos + 1) & mask]) == null)
+            if ((curr = key[pos = (pos + 1) & mask]) == null) {
                 return defRetValue;
-            if (hasher.areEqual(k, curr))
+            }
+            if (hasher.areEqual(k, curr)) {
                 return removeEntry(pos, h);
+            }
         }
     }
     private V setValue(final int pos, final V v) {
@@ -563,8 +593,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
     }
 
     private void moveIndexToFirst(final int i) {
-        if(size <= 1 || first == i)
+        if(size <= 1 || first == i) {
             return;
+        }
         order.moveToFirst(i);
         if (last == i) {
             last = order.peek();
@@ -584,8 +615,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         first = i;
     }
     private void moveIndexToLast(final int i) {
-        if(size <= 1 || last == i)
+        if(size <= 1 || last == i) {
             return;
+        }
         order.moveToLast(i);
         if (first == i) {
             first = order.get(0);
@@ -632,7 +664,8 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
                     moveIndexToFirst(pos);
                     return setValue(pos, v);
                 }*/
-                while (key[pos = (pos + 1) & mask] != null);
+                while (key[pos = (pos + 1) & mask] != null) {
+                }
                     /*if (hasher.areEqual(curr, k)) {
                         moveIndexToFirst(pos);
                         return setValue(pos, v);
@@ -651,8 +684,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             first = pos;
         }
         order.insert(0, pos);
-        if (size++ >= maxFill)
+        if (size++ >= maxFill) {
             rehash(arraySize(size, f));
+        }
         return defRetValue;
     }
     /**
@@ -683,7 +717,8 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
                     moveIndexToLast(pos);
                     return setValue(pos, v);
                 }*/
-                while (key[pos = (pos + 1) & mask] != null);
+                while (key[pos = (pos + 1) & mask] != null) {
+                }
                     /*if (hasher.areEqual(curr, k)) {
                         moveIndexToLast(pos);
                         return setValue(pos, v);
@@ -701,10 +736,12 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
             //link[pos] = ((last & 0xFFFFFFFFL) << 32) | (-1 & 0xFFFFFFFFL);
             last = pos;
         }
-        if(order.peek() != pos)
+        if(order.peek() != pos) {
             order.add(pos);
-        if (size++ >= maxFill)
+        }
+        if (size++ >= maxFill) {
             rehash(arraySize(size, f));
+        }
         return defRetValue;
     }
 
@@ -715,8 +752,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
      * If you want to reduce the table size, you must use {@link #trim()}.
      */
     public void clear() {
-        if (size == 0)
+        if (size == 0) {
             return;
+        }
         size = 0;
         containsNullKey = false;
         Arrays.fill(key, null);
@@ -753,8 +791,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         }
         @SuppressWarnings("unchecked")
         public boolean equals(final Object o) {
-            if (!(o instanceof Map.Entry))
+            if (!(o instanceof Map.Entry)) {
                 return false;
+            }
             Entry<K, V> e = (Entry<K, V>) o;
             return (key[index] == null
                     ? e.getKey() == null
@@ -836,18 +875,22 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
     public int hashCode() {
         int h = 0;
         for (int j = realSize(), i = 0, t = 0; j-- != 0;) {
-            while (key[i] == null)
+            while (key[i] == null) {
                 i++;
-            if (this != key[i])
+            }
+            if (this != key[i]) {
                 t = hasher.hash(key[i]);
-            if (this != value[i])
+            }
+            if (this != value[i]) {
                 t ^= value[i] == null ? 0 : value[i].hashCode();
+            }
             h += t;
             i++;
         }
         // Zero / null keys have hash zero.
-        if (containsNullKey)
+        if (containsNullKey) {
             h += value[n] == null ? 0 : value[n].hashCode();
+        }
         return h;
     }
 
@@ -855,8 +898,6 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
 
         private HashCommon() {
         }
-
-        ;
 
         /**
          * This reference is used to fill keys and values of removed entries (if
@@ -905,7 +946,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
          * @return the least power of two greater than or equal to the specified value.
          */
         static long nextPowerOfTwo(long x) {
-            if (x == 0) return 1;
+            if (x == 0) {
+                return 1;
+            }
             x--;
             x |= x >> 1;
             x |= x >> 2;
@@ -930,11 +973,16 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
      * @return the number of elements unwrapped.
      */
     private int unwrap(final ValueIterator i, final Object[] array, int offset, final int max) {
-        if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
-        if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
+        if (max < 0) {
+            throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
+        }
+        if (offset < 0 || offset + max > array.length) {
+            throw new IllegalArgumentException();
+        }
         int j = max;
-        while (j-- != 0 && i.hasNext())
+        while (j-- != 0 && i.hasNext()) {
             array[offset++] = i.next();
+        }
         return max - j - 1;
     }
 
@@ -964,11 +1012,16 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
      * @param max the maximum number of elements to unwrap.
      * @return the number of elements unwrapped. */
     private static <K> int objectUnwrap(final Iterator<? extends K> i, final K array[], int offset, final int max ) {
-        if ( max < 0 ) throw new IllegalArgumentException( "The maximum number of elements (" + max + ") is negative" );
-        if ( offset < 0 || offset + max > array.length ) throw new IllegalArgumentException();
+        if ( max < 0 ) {
+            throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
+        }
+        if ( offset < 0 || offset + max > array.length ) {
+            throw new IllegalArgumentException();
+        }
         int j = max;
-        while ( j-- != 0 && i.hasNext() )
-            array[ offset++ ] = i.next();
+        while ( j-- != 0 && i.hasNext() ) {
+            array[offset++] = i.next();
+        }
         return max - j - 1;
     }
 
@@ -991,8 +1044,11 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
         boolean first = true;
         s.append("StackMap{");
         while (i < n) {
-            if (first) first = false;
-            else s.append(", ");
+            if (first) {
+                first = false;
+            } else {
+                s.append(", ");
+            }
             s.append(entryAt(i++));
         }
         s.append("}");
@@ -1000,24 +1056,29 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
     }
     @Override
     public boolean equals(Object o) {
-        if (o == this)
+        if (o == this) {
             return true;
-        if (!(o instanceof Map))
+        }
+        if (!(o instanceof Map)) {
             return false;
+        }
         Map<?, ?> m = (Map<?, ?>) o;
-        if (m.size() != size())
+        if (m.size() != size()) {
             return false;
+        }
         return entrySet().containsAll(m.entrySet());
     }
 
     public V removeAt(final int idx) {
 
-        if (idx < 0 || idx >= order.size)
+        if (idx < 0 || idx >= order.size) {
             return defRetValue;
+        }
         int pos = order.get(idx);
         if (key[pos] == null) {
-            if (containsNullKey)
+            if (containsNullKey) {
                 return removeNullEntry();
+            }
             return defRetValue;
         }
         return removeEntry(pos, pos);
@@ -1025,8 +1086,9 @@ public class StackMap<K, V> extends OrderedMap<K, V> implements Serializable {
 
     public List<V> getMany(Collection<K> keys)
     {
-        if(keys == null)
+        if(keys == null) {
             return new ArrayList<>(1);
+        }
         ArrayList<V> vals = new ArrayList<>(keys.size());
         for(K k : keys)
         {
