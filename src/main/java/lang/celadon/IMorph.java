@@ -8,9 +8,9 @@ import java.util.List;
 public interface IMorph {
     /**
      * Changes the parameter tokens, within the range of start (inclusive) to end (exclusive). This must modify tokens
-     * to avoid an "infinite loop" (which will be caught by the sandbox), and this normally means removing all tokens in
-     * the start-to-end range and filling 0 or more tokens back in their place. The return value should be the number of
-     * tokens "refilled" into tokens after removal of the start-to-end range.
+     * to avoid an "infinite loop," and this normally means removing all tokens in the start-to-end range and filling 0
+     * or more tokens back in their place. The return value should be the number of tokens "refilled" into tokens after
+     * removal of the start-to-end range.
      * <br>
      * For example, an IMorph might cause some side effect when evaluated and then remove the Tokens that produced it.
      * This IMorph would remove all Tokens from start until end (exclusive on end), and insert zero tokens after causing

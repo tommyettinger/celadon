@@ -169,7 +169,7 @@ public class Context extends StackMap<String, Token>{
                 {
                     String name = tokens.get(start).contents;
                     int pt = step(tokens, start+1);
-                    set(name, tokens.get(pt));
+                    assign(name, tokens.get(pt));
                 }
                 tokens.clear();
                 return 0;
@@ -203,7 +203,7 @@ public class Context extends StackMap<String, Token>{
                     String name = tokens.remove(start).contents;
                     int pt = step(tokens, start);
                     Token tk = tokens.get(pt);
-                    set(name, tk);
+                    assign(name, tk);
                     tokens.clear();
                     tokens.add(tk);
                     return 1;
@@ -245,7 +245,7 @@ public class Context extends StackMap<String, Token>{
                     ((IMorph)get("fn").solid).morph(context, tokens, start+1, end);
                     Token f = tokens.remove(0);
                     ((ARun)f.solid).title = name;
-                    set(name, f);
+                    assign(name, f);
                     return 0;
                 }
                 tokens.clear();
@@ -279,7 +279,7 @@ public class Context extends StackMap<String, Token>{
                     int lastBracket = nextStop(tokens, start+1);
                     Token f = Token.macro(new Macro(context, name, tokens, start + 2, lastBracket, lastBracket + 1, end));
                     tokens.clear();
-                    set(name, f);
+                    assign(name, f);
                     return 0;
                 }
                 tokens.clear();
@@ -699,6 +699,46 @@ public class Context extends StackMap<String, Token>{
             }
         }));
 
+        reserveMacro("++", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start + 1 == end)
+                {
+                    String name = tokens.get(start).contents;
+                    Token tk = tokens.get(step(tokens, start));
+                    if(tk.floating())
+                        assign(name, tk = Token.stable(tk.asDouble()+1.0));
+                    else if(tk.numeric())
+                        assign(name, tk = Token.stable(tk.asLong()+1L));
+                    tokens.clear();
+                    tokens.add(tk);
+                    return 1;
+                }
+                tokens.clear();
+                return 0;
+            }
+        });
+
+        reserveMacro("--", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start + 1 == end)
+                {
+                    String name = tokens.get(start).contents;
+                    Token tk = tokens.get(step(tokens, start));
+                    if(tk.floating())
+                        assign(name, tk = Token.stable(tk.asDouble()-1.0));
+                    else if(tk.numeric())
+                        assign(name, tk = Token.stable(tk.asLong()-1L));
+                    tokens.clear();
+                    tokens.add(tk);
+                    return 1;
+                }
+                tokens.clear();
+                return 0;
+            }
+        });
+
     }
 
     public Token peek(String key)
@@ -732,6 +772,7 @@ public class Context extends StackMap<String, Token>{
             set(key, value);
         return this;
     }
+
     public void putTokenEntries(Collection<Token> keyColl, Collection<Token> valueColl)
     {
         Iterator<Token> ki = keyColl.iterator();

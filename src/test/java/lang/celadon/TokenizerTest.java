@@ -24,7 +24,7 @@ public class TokenizerTest {
                 "{defmacro duplicate [thing] [thing thing]}\n" +
                 "(+ {duplicate 333})"));
         ArrayList<Token> tokens = Token.tokenize(
-                "~=$*/" +
+                "~~/" +
                         "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{= ten (+ 5 5)}\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
@@ -38,9 +38,11 @@ public class TokenizerTest {
                         "({fn [a b] (+ a b)} 10 32)\n" +
                         "{def add {fn [a b] (+ a b)}} (add 222 444)\n" +
                         "{defn add [a b] (add a b)} (add 111 222)\n" +
-                        "/*$=~" +
                         "{defmacro dup [a] [a a]} (+ {dup 11} {dup 10}) {dup 23}\n" +
-                        "{defmacro plus [] [+]} ({plus} 11 22) {plus} plus\n"
+                        "{defmacro plus [] [+]} ({plus} 11 22) {plus} plus\n" +
+                        "/~~" +
+                        "{def n 41}\n" +
+                        "(+ n n) (+ n {++ n}) (+ n n)"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
