@@ -41,8 +41,8 @@ public class TokenizerTest {
                         "{defmacro dup [a] [a a]} (+ {dup 11} {dup 10}) {dup 23}\n" +
                         "{defmacro plus [] [+]} ({plus} 11 22) {plus} plus\n" +
                         "/~~" +
-                        "{def n 41}\n" +
-                        "(+ n n) (+ n {++ n}) (+ n n)"
+                        "{def n 40}\n" +
+                        "{while (> 50 {++ n}) n}"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

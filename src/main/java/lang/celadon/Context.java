@@ -287,6 +287,39 @@ public class Context extends StackMap<String, Token>{
             }
         });
 
+        reserveMacro("while", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, final int start, final int end) {
+                int pos = context.nextStop(tokens, start)+1, bodyStart = pos, startTemp;
+                List<Token> condition = tokens.subList(start, pos),
+                        conditionFixed = new ArrayList<>(condition),
+                        bodyFixed = new ArrayList<>(tokens.subList(bodyStart, end)),
+                        results = new ArrayList<>();
+                while ((pos = context.step(tokens, start)) >= 0) {
+                    if (tokens.remove(pos).asBoolean()) {
+                        startTemp = pos;
+                        while ((startTemp = step(tokens, startTemp)+1) > 0)
+                        {}
+                        results.addAll(tokens);
+                        tokens.clear();
+                        tokens.addAll(start, conditionFixed);
+                        tokens.addAll(bodyFixed);
+                    }
+                    else
+                    {
+                        tokens.clear();
+                        /*
+                        for (int i = tokens.size()-1; i >= startTemp; i--) {
+                            tokens.remove(i);
+                        }*/
+                        break;
+                    }
+                }
+                tokens.addAll(start, results);
+                return results.size();
+            }
+        });
+
 
         reserveMacro("and", new IMorph() {
             @Override
@@ -826,8 +859,8 @@ public class Context extends StackMap<String, Token>{
                             i = i0 - 1;
                         }
                     }
-                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
-                        + ", first bracket is " + t.bracket);
+                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t.bracket
+                        + ", first bracket is " + t2.bracket);
             } else if ((i0 = t.special) < 0)
             {
                 i -= 1 + ((IMorph) t.solid).morph(this, tokens, i, i - i0);
@@ -893,8 +926,8 @@ public class Context extends StackMap<String, Token>{
                         }
                         return i0;
                     }
-                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
-                        + ", first bracket is " + t.bracket);
+                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t.bracket
+                        + ", first bracket is " + t2.bracket);
             }
             else
             {
@@ -927,12 +960,12 @@ public class Context extends StackMap<String, Token>{
                     bracketPositions.add(i);
                 } else if (t.bracketsMatch(t2 = tokens.get(i0 = bracketPositions.pop()))) {
                     t3 = peek(t2.mode);
-                    if(t3.special < 0)
+                    if(t3.special < 0 && bracketPositions.size == 0)
                     {
                         return i; // note this ends before the others, omitting the closing bracket
                     }
-                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t2.bracket
-                        + ", first bracket is " + t.bracket);
+                } else throw new UnsupportedOperationException("Brackets do not match: last bracket is " + t.bracket
+                        + ", first bracket is " + t2.bracket);
             }
             else
             {
