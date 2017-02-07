@@ -2,8 +2,6 @@ package lang.celadon;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 /**
  * Created by Tommy Ettinger on 1/3/2017.
  */
@@ -23,7 +21,7 @@ public class TokenizerTest {
                 "(println (* 2 (+ 10 11)))\n" +
                 "{defmacro duplicate [thing] [thing thing]}\n" +
                 "(+ {duplicate 333})"));
-        ArrayList<Token> tokens = Token.tokenize(
+        TList tokens = Token.tokenize(
                 "~~/" +
                         "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{= ten (+ 5 5)}\n" +
@@ -42,7 +40,9 @@ public class TokenizerTest {
                         "{defmacro plus [] [+]} ({plus} 11 22) {plus} plus\n" +
                         "/~~" +
                         "{def n 40}\n" +
-                        "{while (> 50 {++ n}) n}"
+                        "{while (> 50 {++ n}) n}\n" +
+                        "[] [1] [1 2] [1 1]\n" +
+                        "#set[] #set[1] #set[1 2] #set[1 1] #set[NaN (+ Infinity (/ -0.0 -0.0))]\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

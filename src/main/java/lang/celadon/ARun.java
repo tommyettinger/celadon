@@ -1,5 +1,6 @@
 package lang.celadon;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,8 @@ import java.util.List;
  * names and a body as Token lists, as well as storing a copy of the Context at the time this ARun was declared.
  * Created by Tommy Ettinger on 1/9/2017.
  */
-public abstract class ARun {
+public abstract class ARun implements Serializable {
+    private static final long serialVersionUID = 0;
     public Context context;
     public List<Token> names, body;
     public String title;

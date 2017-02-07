@@ -3,14 +3,14 @@ package lang.celadon;
 import regexodus.*;
 import squidpony.StringKit;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * Celadon token data class, and a static tokenizer method.
  * Created by Tommy Ettinger on 1/3/2017.
  */
-public class Token {
+public class Token implements Serializable {
+    private static final long serialVersionUID = 0;
     public String contents, bracket, mode;
     public boolean closing;
     public byte special = 0;
@@ -52,9 +52,9 @@ public class Token {
         return new Token((byte)-127, changer);
     }
 
-    public static List<Token> nameList(String... names)
+    public static TList nameList(String... names)
     {
-        ArrayList<Token> tokens = new ArrayList<>(names.length);
+        TList tokens = new TList(names.length);
         for (int i = 0; i < names.length; i++) {
             tokens.add(new Token(names[i]));
         }
@@ -97,15 +97,15 @@ public class Token {
     );
     public static final Matcher m = pattern.matcher();
 
-    public static ArrayList<Token> tokenize(CharSequence text)
+    public static TList tokenize(CharSequence text)
     {
         return tokenize(text, 0, text.length());
     }
-    public static ArrayList<Token> tokenize(CharSequence text, int start, int end)
+    public static TList tokenize(CharSequence text, int start, int end)
     {
         int len;
-        if(text == null || (len = text.length()) == 0) return new ArrayList<>(0);
-        ArrayList<Token> tokens = new ArrayList<>(32 + len >>> 2);
+        if(text == null || (len = text.length()) == 0) return new TList(0);
+        TList tokens = new TList(32 + len >>> 2);
         m.setTarget(text, start, end);
         MatchIterator mi = m.findAll();
         MatchResult mr;

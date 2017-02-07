@@ -2,14 +2,16 @@ package lang.celadon;
 
 import squidpony.squidmath.IntVLA;
 import squidpony.squidmath.OrderedMap;
+import squidpony.squidmath.OrderedSet;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by Tommy Ettinger on 1/6/2017.
  */
-public class Context extends StackMap<String, Token>{
-
+public class Context extends StackMap<String, Token> implements Serializable{
+    private static final long serialVersionUID = 0;
     protected HashSet<String> reserved;
     public Context()
     {
@@ -121,12 +123,12 @@ public class Context extends StackMap<String, Token>{
             @Override
             public int morph(Context context, final List<Token> tokens, int start, int end) {
                 Token result;
-                if(start + 2 >= end)
+                if(start + 1 >= end)
                 {
-                    result = Token.stable(new ArrayList<Token>());
+                    result = Token.stable(new TList());
                 }
                 else {
-                    ArrayList<Token> tks = new ArrayList<Token>(end - start - 1);
+                    TList tks = new TList(end - start - 1);
                     for (int i = start + 1; i < end - 1; i++) {
                         tks.add(tokens.remove(start + 1));
                     }
@@ -153,6 +155,28 @@ public class Context extends StackMap<String, Token>{
                     }
                     if((end - start & 1) == 1)
                         tokens.remove(start+1);
+                    result = Token.stable(tks);
+                }
+                tokens.remove(start);
+                tokens.remove(start);
+                tokens.add(start, result);
+                return 1;
+            }
+        });
+
+        reserveBracket("#set[", new IMorph() {
+            @Override
+            public int morph(Context context, final List<Token> tokens, int start, int end) {
+                Token result;
+                if(start + 1 >= end)
+                {
+                    result = Token.stable(new OrderedSet<Token>());
+                }
+                else {
+                    OrderedSet<Token> tks = new OrderedSet<Token>(end - start - 1);
+                    for (int i = start + 1; i < end - 1; i++) {
+                        tks.add(tokens.remove(start + 1));
+                    }
                     result = Token.stable(tks);
                 }
                 tokens.remove(start);
@@ -292,9 +316,9 @@ public class Context extends StackMap<String, Token>{
             public int morph(Context context, List<Token> tokens, final int start, final int end) {
                 int pos = context.nextStop(tokens, start)+1, bodyStart = pos, startTemp;
                 List<Token> condition = tokens.subList(start, pos),
-                        conditionFixed = new ArrayList<>(condition),
-                        bodyFixed = new ArrayList<>(tokens.subList(bodyStart, end)),
-                        results = new ArrayList<>();
+                        conditionFixed = new TList(condition),
+                        bodyFixed = new TList(tokens.subList(bodyStart, end)),
+                        results = new TList();
                 while ((pos = context.step(tokens, start)) >= 0) {
                     if (tokens.remove(pos).asBoolean()) {
                         startTemp = pos;
@@ -877,21 +901,26 @@ public class Context extends StackMap<String, Token>{
 
 
     }
-    public List<Object> evaluate(List<Token> tokens)
+    public TList solidify (TList tokens)
     {
         if(tokens == null || tokens.isEmpty())
-            return Collections.emptyList();
-        List<Object> values = new ArrayList<>(16);
+            return TList.empty;
         int n = 0;
         while (true)
         {
             n = step(tokens, n);
             if(n >= 0)
-                values.add(tokens.get(n++).solid);
+                n++;
             else
                 break;
         }
-        return values;
+        return tokens;
+    }
+    public List<Object> evaluate(TList tokens)
+    {
+        if(tokens == null || tokens.isEmpty())
+            return Collections.emptyList();
+        return solidify(tokens).as();
     }
 
     public int skip(List<Token> tokens, int start)

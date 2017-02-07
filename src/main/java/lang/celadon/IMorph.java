@@ -1,11 +1,12 @@
 package lang.celadon;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Tommy Ettinger on 1/7/2017.
  */
-public interface IMorph {
+public interface IMorph extends Serializable {
     /**
      * Changes the parameter tokens, within the range of start (inclusive) to end (exclusive). This must modify tokens
      * to avoid an "infinite loop," and this normally means removing all tokens in the start-to-end range and filling 0
