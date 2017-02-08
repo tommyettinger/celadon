@@ -22,4 +22,18 @@ public class Tools {
         }
         public static final WispStringHasher instance = new WispStringHasher();
     }
+    public static class WispTokenHasher implements CrossHash.IHasher
+    {
+        @Override
+        public int hash(Object data) {
+            return data.hashCode();
+        }
+
+        @Override
+        public boolean areEqual(Object left, Object right) {
+            return left == right || ((left != null && left instanceof Token && right instanceof Token)
+                    ? left.equals(right) : Objects.equals(left, right));
+        }
+        public static final WispTokenHasher instance = new WispTokenHasher();
+    }
 }

@@ -39,8 +39,27 @@ public class TList extends ArrayList<Token> implements Serializable {
         super(c);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        int n = this.size(), i = 0;
+        boolean first = true;
+        s.append("[");
+
+        for(; i < n; s.append(this.get(i++))) {
+            if(first) {
+                first = false;
+            } else {
+                s.append(' ');
+            }
+        }
+        return s.append(']').toString();
+    }
+
+
+
     @SuppressWarnings("unchecked")
-    public <TYPE> ArrayList<TYPE> as()
+    public <TYPE> ArrayList<TYPE> as(Class<TYPE> clazz)
     {
         int sz = size();
         Token tk;
@@ -51,7 +70,7 @@ public class TList extends ArrayList<Token> implements Serializable {
         }
         return next;
     }
-    
+
     public static final TList empty = new EmptyTList();
 
     private static class EmptyTList extends TList

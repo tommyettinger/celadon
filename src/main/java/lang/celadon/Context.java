@@ -170,10 +170,10 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 Token result;
                 if(start + 1 >= end)
                 {
-                    result = Token.stable(new OrderedSet<Token>());
+                    result = Token.stable(new TSet());
                 }
                 else {
-                    OrderedSet<Token> tks = new OrderedSet<Token>(end - start - 1);
+                    TSet tks = new TSet(end - start - 1);
                     for (int i = start + 1; i < end - 1; i++) {
                         tks.add(tokens.remove(start + 1));
                     }
@@ -920,7 +920,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
     {
         if(tokens == null || tokens.isEmpty())
             return Collections.emptyList();
-        return solidify(tokens).as();
+        return solidify(tokens).as(Object.class);
     }
 
     public int skip(List<Token> tokens, int start)
