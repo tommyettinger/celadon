@@ -2,7 +2,6 @@ package lang.celadon;
 
 import squidpony.squidmath.IntVLA;
 import squidpony.squidmath.OrderedMap;
-import squidpony.squidmath.OrderedSet;
 
 import java.io.Serializable;
 import java.util.*;
@@ -834,10 +833,16 @@ public class Context extends StackMap<String, Token> implements Serializable{
     {
         Iterator<Token> ki = keyColl.iterator();
         Iterator<Token> vi = valueColl.iterator();
-        while (ki.hasNext() && vi.hasNext())
+        TList etc = new TList(valueColl.size());
+        while (vi.hasNext())
         {
-            put(ki.next().contents, vi.next());
+            if(ki.hasNext())
+                put(ki.next().contents, vi.next());
+            else
+                etc.add(vi.next());
         }
+        put("...", Token.stable(etc));
+
     }
 
     public int step(List<Token> tokens, int start)

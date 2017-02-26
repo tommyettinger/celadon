@@ -18,7 +18,7 @@ public class TSet extends OrderedSet<Token> {
      * @param f        the load factor.
      */
     public TSet(int expected, float f) {
-        super(expected, f, Tools.WispTokenHasher.instance);
+        super(expected, f, Tools.TokenHasher.instance);
     }
 
     /**
@@ -28,7 +28,7 @@ public class TSet extends OrderedSet<Token> {
      * @param expected the expected number of elements in the hash set.
      */
     public TSet(int expected) {
-        super(expected, Tools.WispTokenHasher.instance);
+        super(expected, Tools.TokenHasher.instance);
     }
 
     /**
@@ -37,7 +37,7 @@ public class TSet extends OrderedSet<Token> {
      * {@link #DEFAULT_LOAD_FACTOR} as load factor.
      */
     public TSet() {
-        super(Tools.WispTokenHasher.instance);
+        super(Tools.TokenHasher.instance);
     }
 
     /**
@@ -47,7 +47,7 @@ public class TSet extends OrderedSet<Token> {
      * @param f the load factor.
      */
     public TSet(Collection<? extends Token> c, float f) {
-        super(c, f, Tools.WispTokenHasher.instance);
+        super(c, f, Tools.TokenHasher.instance);
     }
 
     /**
@@ -57,7 +57,7 @@ public class TSet extends OrderedSet<Token> {
      * @param c a {@link Collection} to be copied into the new hash set.
      */
     public TSet(Collection<? extends Token> c) {
-        super(c, Tools.WispTokenHasher.instance);
+        super(c, Tools.TokenHasher.instance);
     }
 
     /**
@@ -69,7 +69,7 @@ public class TSet extends OrderedSet<Token> {
      * @param f      the load factor.
      */
     public TSet(Token[] a, int offset, int length, float f) {
-        super(a, offset, length, f, Tools.WispTokenHasher.instance);
+        super(a, offset, length, f, Tools.TokenHasher.instance);
     }
 
     /**
@@ -81,7 +81,7 @@ public class TSet extends OrderedSet<Token> {
      * @param length the number of elements to use.
      */
     public TSet(Token[] a, int offset, int length) {
-        super(a, offset, length, Tools.WispTokenHasher.instance);
+        super(a, offset, length, Tools.TokenHasher.instance);
     }
 
     /**
@@ -91,7 +91,7 @@ public class TSet extends OrderedSet<Token> {
      * @param f the load factor.
      */
     public TSet(Token[] a, float f) {
-        super(a, f, Tools.WispTokenHasher.instance);
+        super(a, f, Tools.TokenHasher.instance);
     }
 
     /**
@@ -101,7 +101,7 @@ public class TSet extends OrderedSet<Token> {
      * @param a an array to be copied into the new hash set.
      */
     public TSet(Token[] a) {
-        super(a, Tools.WispTokenHasher.instance);
+        super(a, Tools.TokenHasher.instance);
     }
 
     @SuppressWarnings("unchecked")
@@ -243,6 +243,7 @@ public class TSet extends OrderedSet<Token> {
         public boolean alter(Token original, Token replacement) {
             throw new UnsupportedOperationException("Cannot modify this TSet");
         }
+
     }
 
 }

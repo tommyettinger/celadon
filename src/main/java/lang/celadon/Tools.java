@@ -22,7 +22,7 @@ public class Tools {
         }
         public static final WispStringHasher instance = new WispStringHasher();
     }
-    public static class WispTokenHasher implements CrossHash.IHasher
+    public static class TokenHasher implements CrossHash.IHasher
     {
         @Override
         public int hash(Object data) {
@@ -34,6 +34,6 @@ public class Tools {
             return left == right || ((left != null && left instanceof Token && right instanceof Token)
                     ? left.equals(right) : Objects.equals(left, right));
         }
-        public static final WispTokenHasher instance = new WispTokenHasher();
+        public static final TokenHasher instance = new TokenHasher();
     }
 }

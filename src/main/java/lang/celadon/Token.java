@@ -228,14 +228,14 @@ public class Token implements Serializable {
             for (int i = 0; i < len; i++) {
                 result += (a ^= 0x85157AF5 * contents.charAt(i));
             }
-            result *= (a | 1);
+            result = result * (a | 1) ^ (result >>> 11 | result << 21);
         }
         if(mode != null) {
             len = mode.length();
             for (int i = 0; i < len; i++) {
                 result += (a ^= 0x85157AF5 * mode.charAt(i));
             }
-            result *= (a | 1);
+            result = result * (a | 1) ^ (result >>> 11 | result << 21);
         }
         result += (closing) ? 421 : 0;
         if(bracket != null) {
@@ -243,7 +243,7 @@ public class Token implements Serializable {
             for (int i = 0; i < len; i++) {
                 result += (a ^= 0x85157AF5 * bracket.charAt(i));
             }
-            result *= (a | 1);
+            result = result * (a | 1) ^ (result >>> 11 | result << 21);
         }
         return result;
     }

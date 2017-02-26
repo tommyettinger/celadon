@@ -42,7 +42,16 @@ public class TokenizerTest {
                         "{def n 40}\n" +
                         "{while (> 50 {++ n}) n}\n" +
                         "[] [1] [1 2] [1 1]\n" +
-                        "#set[] #set[1] #set[1 2] #set[1 1] #set[NaN (+ Infinity (/ -0.0 -0.0))]\n"
+                        "; #set[] #set[1] #set[1 2] #set[1 1] #set[NaN (+ Infinity (/ -0.0 -0.0))]\n" +
+                        "{defn sip [a] a}\n" +
+                        "{defn gulp [] []}\n" +
+                        "{defn list [] ...}\n" +
+                        "{def n 40}\n" +
+                        "(sip {while (> 45 {++ n}) n})\n" +
+                        "{def n 40}\n" +
+                        "(gulp {while (> 45 {++ n}) n})\n" +
+                        "{def n 40}\n" +
+                        "(list {while (> 45 {++ n}) n})\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
