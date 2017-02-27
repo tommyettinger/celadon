@@ -103,7 +103,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 else if(f.special > 7)
                 {
                     List<Token> tks = tokens.subList(start + 1, end - 2);
-                    int r =((IMorph)f.solid).morph(Context.this, tks, 0, tks.size());
+                    int r =((IMorph)f.solid).morph(context, tks, 0, tks.size());
                     tokens.remove(start);
                     tokens.remove(start+r);
                     return r;
@@ -137,6 +137,43 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 tokens.remove(start);
                 tokens.add(start, result);
                 return 1;
+            }
+        });
+        reserveBracket("#(", new IMorph() {
+            @Override
+            public int morph(Context context, final List<Token> tokens, int start, int end) {
+                Token result;
+                if (start + 2 >= end) {
+                    tokens.remove(start);
+                    tokens.remove(start);
+                    return 0;
+                }
+                Token f = tokens.remove(start + 1);
+                if (f.special > 15) { // normal function call
+                    List<Token> tks = tokens.subList(start + 1, end - 2);
+                    //evaluate(tks);
+                    result = ((ARun) f.solid).run(tks);
+                    tks.clear();
+                    tokens.remove(start);
+                    tokens.set(start, result);
+                    return 1;
+                }
+                else if(f.special > 7)
+                {
+                    List<Token> tks = tokens.subList(start + 1, end - 2);
+                    int r =((IMorph)f.solid).morph(context, tks, 0, tks.size());
+                    tokens.remove(start);
+                    tokens.remove(start+r);
+                    return r;
+                }
+
+                for (int i = start + 1; i < end - 2; i++) {
+                    tokens.remove(start + 1); // this was already given to f
+                }
+                tokens.remove(start);
+                tokens.remove(start);
+                //tokens.add(start, result);
+                return 0;
             }
         });
         reserveBracket("#map[", new IMorph() {

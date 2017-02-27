@@ -38,7 +38,6 @@ public class TokenizerTest {
                         "{defn add [a b] (add a b)} (add 111 222)\n" +
                         "{defmacro dup [a] [a a]} (+ {dup 11} {dup 10}) {dup 23}\n" +
                         "{defmacro plus [] [+]} ({plus} 11 22) {plus} plus\n" +
-                        "/~~" +
                         "{def n 40}\n" +
                         "{while (> 50 {++ n}) n}\n" +
                         "[] [1] [1 2] [1 1]\n" +
@@ -46,12 +45,20 @@ public class TokenizerTest {
                         "{defn sip [a] a}\n" +
                         "{defn gulp [] []}\n" +
                         "{defn list [] ...}\n" +
+                        "/~~" +
+                        "{defmacro spray [coll] coll}\n" +
+                        "~~/" +
                         "{def n 40}\n" +
                         "(sip {while (> 45 {++ n}) n})\n" +
                         "{def n 40}\n" +
                         "(gulp {while (> 45 {++ n}) n})\n" +
                         "{def n 40}\n" +
-                        "(list {while (> 45 {++ n}) n})\n"
+                        "(list {while (> 45 {++ n}) n})\n" +
+                        "/~~" +
+                        "{def n 40}\n" +
+                        "#(spray [{while (> 45 {++ n}) n}])\n" +
+                        ""
+
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

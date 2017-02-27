@@ -13,43 +13,43 @@ public class Token implements Serializable {
     private static final long serialVersionUID = 0;
     public String contents, bracket, mode;
     public boolean closing;
-    public byte special = 0;
+    public int special = 0;
     public Object solid = null;
     public Token()
     {
         contents = "";
     }
 
-    static final Token RESERVED = new Token((byte)0, (0.0f / 0.0f) * 3.14f);
+    static final Token RESERVED = new Token(0, (0.0f / 0.0f) * 3.14f);
 
-    private Token(byte specialty, Object solidState)
+    private Token(int specialty, Object solidState)
     {
         special = specialty;
         solid = solidState;
     }
     public static Token stable(Object state)
     {
-        return new Token((byte)1, state);
+        return new Token(1, state);
     }
     public static Token envoy(IMorph changer)
     {
-        return new Token((byte)-1, changer);
+        return new Token(-1, changer);
     }
     public static Token function(ARun runner)
     {
-        return new Token((byte)16, runner);
+        return new Token(16, runner);
     }
     public static Token macro(IMorph runner)
     {
-        return new Token((byte)8, runner);
+        return new Token(8, runner);
     }
     public static Token varying(IMorph changer)
     {
-        return new Token((byte)-128, changer);
+        return new Token(-128, changer);
     }
     public static Token quoter(IMorph changer)
     {
-        return new Token((byte)-127, changer);
+        return new Token(-127, changer);
     }
 
     public static TList nameList(String... names)
@@ -81,7 +81,7 @@ public class Token implements Serializable {
 
 
     public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
-            "|({=string}({=mode}#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+            "|({=string}({=mode}#({=remove}~)?[^\\p{G},\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=remove}({=bracket}~+[%~+=*_\\$\\?\\|-]*/)(?:[\\d\\D]*?){\\/bracket})" +
             "|(?:({=double}({=sign}[+-]?)(?:(?:(?:NaN)|(?:Infinity))|(?:({=digits}[0-9]+\\.[0-9]*" +
@@ -90,10 +90,10 @@ public class Token implements Serializable {
               "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
               "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
               "|({=digits}[0-9]+)))(?:[lnLN]?))" +
-            "|({=open}({=mode}(?:#({=remove}~)?[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{])))" +
+            "|({=open}({=mode}(?:#({=remove}~)?[^\\p{G},\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{])))" +
             "|({=close}({=bracket}[\\)\\]\\}]))" +
-            "|({=contents}[:@]+)" +
-            "|({=contents}[^\\h\\v,:@\\(\\)\\[\\]\\{\\}\"';#~]+)"
+            "|({=contents}[\\\\:@`]+)" +
+            "|({=contents}[^\\p{G},\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]+)"
     );
     public static final Matcher m = pattern.matcher();
 

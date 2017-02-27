@@ -4,6 +4,7 @@ import squidpony.squidmath.OrderedSet;
 import squidpony.squidmath.RNG;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Tommy Ettinger on 2/8/2017.
@@ -246,4 +247,20 @@ public class TSet extends OrderedSet<Token> {
 
     }
 
+    enum Methods {
+        get {
+            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).get(args.get(0)));}
+        },
+        add {
+            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).add(args.get(0)));}
+        },
+        contains {
+            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).contains(args.get(0)));}
+        },
+        addAll {
+            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).addAll(args));}
+        };
+
+        public abstract Token call(Token me, List<Token> args);
+    }
 }
