@@ -68,6 +68,10 @@ public class Context extends StackMap<String, Token> implements Serializable{
                     {
                         result = ((ARun)f.solid).run(tokens.subList(start+1, end-2));
                     }
+                    else if(f.solid instanceof ICallByName && start + 3 < end)
+                    {
+                        result = ((ICallByName)f.solid).call(tokens.get(start+1), tokens.subList(start+2, end - 2));
+                    }
                     else
                         result = Token.stable(Collections.emptyList());
                     for (int i = start + 1; i < end - 2; i++) {
@@ -166,6 +170,15 @@ public class Context extends StackMap<String, Token> implements Serializable{
                     tokens.remove(start+r);
                     return r;
                 }
+                else if(f.solid instanceof ICallByName && start + 3 < end)
+                {
+                    List<Token> tks;
+                    result = ((ICallByName)f.solid).call(tokens.remove(start+1), (tks = tokens.subList(start+1, end - 3)));
+                    tks.clear();
+                    tokens.remove(start);
+                    tokens.set(start, result);
+                    return 1;
+                }
 
                 for (int i = start + 1; i < end - 2; i++) {
                     tokens.remove(start + 1); // this was already given to f
@@ -176,6 +189,55 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 return 0;
             }
         });
+
+        reserveBracket("#0(", new IMorph() {
+            @Override
+            public int morph(Context context, final List<Token> tokens, int start, int end) {
+                if (start + 2 >= end) {
+                    tokens.remove(start);
+                    tokens.remove(start);
+                    return 0;
+                }
+                Token f = tokens.remove(start + 1);
+                if (f.special > 15) { // normal function call
+                    List<Token> tks = tokens.subList(start + 1, end - 2);
+                    //evaluate(tks);
+                    ((ARun) f.solid).run(tks);
+                    tks.clear();
+                    tokens.remove(start);
+                    tokens.remove(start);
+                    return 0;
+                }
+                else if(f.special > 7)
+                {
+                    List<Token> tks = tokens.subList(start + 1, end - 2);
+                    int r =((IMorph)f.solid).morph(context, tks, 0, tks.size());
+                    tokens.remove(start);
+                    for (int i = 0; i <= r; i++) {
+                        tokens.remove(start);
+                    }
+                    return 0;
+                }
+                else if(f.solid instanceof ICallByName && start + 3 < end)
+                {
+                    List<Token> tks;
+                    ((ICallByName)f.solid).call(tokens.remove(start+1), (tks = tokens.subList(start+1, end - 3)));
+                    tks.clear();
+                    tokens.remove(start);
+                    tokens.remove(start);
+                    return 0;
+                }
+
+                for (int i = start + 1; i < end - 2; i++) {
+                    tokens.remove(start + 1); // this was already given to f
+                }
+                tokens.remove(start);
+                tokens.remove(start);
+                //tokens.add(start, result);
+                return 0;
+            }
+        });
+
         reserveBracket("#map[", new IMorph() {
             @Override
             public int morph(Context context, final List<Token> tokens, int start, int end) {

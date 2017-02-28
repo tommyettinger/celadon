@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by Tommy Ettinger on 2/8/2017.
  */
-public class TSet extends OrderedSet<Token> {
+public class TSet extends OrderedSet<Token> implements ICallByName {
     /**
      * Creates a new hash map.
      * <p>
@@ -135,6 +135,12 @@ public class TSet extends OrderedSet<Token> {
         return s.append(']').toString();
     }
 
+    @Override
+    public Token call(Token name, List<Token> args)
+    {
+        return Methods.valueOf(name.asString()).call(this, args);
+    }
+
     public static final TSet empty = new EmptyTSet();
 
     private static class EmptyTSet extends TSet
@@ -244,23 +250,40 @@ public class TSet extends OrderedSet<Token> {
         public boolean alter(Token original, Token replacement) {
             throw new UnsupportedOperationException("Cannot modify this TSet");
         }
-
     }
 
     enum Methods {
-        get {
-            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).get(args.get(0)));}
+        contains {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.contains(args.get(0)));}
         },
         add {
-            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).add(args.get(0)));}
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.add(args.get(0)));}
         },
-        contains {
-            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).contains(args.get(0)));}
+        remove {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.remove(args.get(0)));}
+        },
+        alter {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.alter(args.get(0), args.get(1)));}
+        },
+        randomItem {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.randomItem((RNG)args.get(0).solid));}
+        },
+        addAt {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.addAt(args.get(0), args.get(1).asInt()));}
+        },
+        getAt {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.getAt(args.get(0).asInt()));}
+        },
+        removeAt {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.removeAt(args.get(0).asInt()));}
         },
         addAll {
-            public Token call(Token me, List<Token> args) {return Token.stable(((TSet)me.solid).addAll(args));}
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.addAll(args));}
+        },
+        size {
+            public Token call(OrderedSet<Token> me, List<Token> args) {return Token.stable(me.size());}
         };
 
-        public abstract Token call(Token me, List<Token> args);
+        public abstract Token call(OrderedSet<Token> me, List<Token> args);
     }
 }

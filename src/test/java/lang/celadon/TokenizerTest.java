@@ -45,19 +45,20 @@ public class TokenizerTest {
                         "{defn sip [a] a}\n" +
                         "{defn gulp [] []}\n" +
                         "{defn list [] ...}\n" +
-                        "/~~" +
                         "{defmacro spray [coll] coll}\n" +
-                        "~~/" +
                         "{def n 40}\n" +
                         "(sip {while (> 45 {++ n}) n})\n" +
                         "{def n 40}\n" +
                         "(gulp {while (> 45 {++ n}) n})\n" +
                         "{def n 40}\n" +
                         "(list {while (> 45 {++ n}) n})\n" +
-                        "/~~" +
                         "{def n 40}\n" +
                         "#(spray [{while (> 45 {++ n}) n}])\n" +
-                        ""
+                        "/~~\n" +
+                        "{def s #set[1 2 3 5 8]}\n" +
+                        "#0(s 'add' 13)\n" +
+                        "s" +
+                        "\n"
 
         );
         Context context = new Context();

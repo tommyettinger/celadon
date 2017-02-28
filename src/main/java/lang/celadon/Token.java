@@ -81,19 +81,19 @@ public class Token implements Serializable {
 
 
     public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
-            "|({=string}({=mode}#({=remove}~)?[^\\p{G},\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+            "|({=string}({=mode}#({=remove}~)?[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=remove}({=bracket}~+[%~+=*_\\$\\?\\|-]*/)(?:[\\d\\D]*?){\\/bracket})" +
             "|(?:({=double}({=sign}[+-]?)(?:(?:(?:NaN)|(?:Infinity))|(?:({=digits}[0-9]+\\.[0-9]*" +
-              "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))))(?:[fmFM]?))" +
+              "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))))(?:[fmFM]?)(?![^\\s,\\(\\)\\[\\]\\{\\}\"';#~]))" +
             "|(?:({=long}({=sign}[+-]?)" +
               "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
               "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
-              "|({=digits}[0-9]+)))(?:[lnLN]?))" +
-            "|({=open}({=mode}(?:#({=remove}~)?[^\\p{G},\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{])))" +
+              "|({=digits}[0-9]+)))(?:[lnLN]?)(?![^\\s,\\(\\)\\[\\]\\{\\}\"';#~]))" +
+            "|({=open}({=mode}(?:#({=remove}~)?[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{])))" +
             "|({=close}({=bracket}[\\)\\]\\}]))" +
-            "|({=contents}[\\\\:@`]+)" +
-            "|({=contents}[^\\p{G},\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]+)"
+            "|({=contents}[\\\\:@`])" +
+            "|({=contents}[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]+)"
     );
     public static final Matcher m = pattern.matcher();
 
@@ -181,6 +181,16 @@ public class Token implements Serializable {
     {
         return ((Number)solid).doubleValue();
     }
+    public int asInt()
+    {
+        if(solid != null) {
+            if (solid instanceof Number)
+                return ((Number) solid).intValue();
+            else if (solid instanceof Boolean)
+                return ((Boolean) solid) ? 1 : 0;
+        }
+        throw new UnsupportedOperationException("Tried to get an int value from an incompatible Token (not a number or a boolean)");
+    }
     public long asLong()
     {
         if(solid != null) {
@@ -193,7 +203,7 @@ public class Token implements Serializable {
     }
     public String asString()
     {
-        return (solid != null && solid instanceof String) ? (String)solid : null;
+        return (solid != null && solid instanceof String) ? (String)solid : (contents != null) ? contents : null;
     }
     public boolean asBoolean()
     {
