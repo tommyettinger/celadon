@@ -11,23 +11,22 @@ import java.util.List;
  * names and a body as Token lists, as well as storing a copy of the Context at the time this ARun was declared.
  * Created by Tommy Ettinger on 1/9/2017.
  */
-public class Macro implements IMorph, Serializable {
+public class Mutant implements IMorph, Serializable {
     private static final long serialVersionUID = 0;
     public Context context;
-    public List<Token> names, body;
+    public List<Token> body;
     public String title = null;
     protected final List<Token> bodyFixed;
-    public Macro(final Context context, final List<Token> tokens,
-                 final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
+    public Mutant(final Context context, final List<Token> tokens,
+                  final int bodyStart, final int bodyEnd)
     {
-        this(context, "", tokens, nameStart, nameEnd, bodyStart, bodyEnd);
+        this(context, "", tokens, bodyStart, bodyEnd);
     }
-    public Macro(final Context context, final String title, final List<Token> tokens,
-                  final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
+    public Mutant(final Context context, final String title, final List<Token> tokens,
+                  final int bodyStart, final int bodyEnd)
     {
         this.context = new Context(context);
         this.title = title;
-        names = new ArrayList<>(tokens.subList(nameStart, nameEnd));
         body = new ArrayList<>(tokens.subList(bodyStart, bodyEnd));
         bodyFixed = new ArrayList<>(body);
     }
@@ -57,7 +56,6 @@ public class Macro implements IMorph, Serializable {
     @Override
     @SuppressWarnings("unchecked")
     public int morph(Context context, List<Token> tokens, int start, int end) {
-        this.context.putTokenEntries(names, tokens);
         Token r = null;
         while (this.context.step(body, 0) >= 0)
         {
@@ -85,28 +83,22 @@ public class Macro implements IMorph, Serializable {
     public String toString()
     {
         if(title != null)
-            return "{macro " + title + "}";
+            return "{mutant " + title + "}";
 
-        if(names == null || bodyFixed == null) {
-            return "{macro ~|/unknown name, non-native/|~)";
+        if(bodyFixed == null) {
+            return "{mutant ~|/unknown name, non-native/|~)";
         }
         StringBuilder sb = new StringBuilder(128);
-        sb.append("{macro [");
-        if(!names.isEmpty()) {
-            sb.append(names.get(0));
-            for (int i = 1; i < names.size(); ++i) {
-                sb.append(' ').append(names.get(i));
-            }
-        }
-        sb.append(" ] ");
+        sb.append("{mutant ");
         if(!bodyFixed.isEmpty()) {
             sb.append(bodyFixed.get(0));
             for (int i = 1; i < bodyFixed.size(); ++i) {
                 sb.append(' ').append(bodyFixed.get(i));
             }
         }
-        sb.append('}');
-        return sb.toString();
+        else
+            sb.append("~|/unknown body/|~ ");
+        return sb.append('}').toString();
 
     }
 

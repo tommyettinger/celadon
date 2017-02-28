@@ -42,6 +42,7 @@ public class TokenizerTest {
                         "{while (> 50 {++ n}) n}\n" +
                         "[] [1] [1 2] [1 1]\n" +
                         "; #set[] #set[1] #set[1 2] #set[1 1] #set[NaN (+ Infinity (/ -0.0 -0.0))]\n" +
+                        "/~~\n" +
                         "{defn sip [a] a}\n" +
                         "{defn gulp [] []}\n" +
                         "{defn list [] ...}\n" +
@@ -54,11 +55,11 @@ public class TokenizerTest {
                         "(list {while (> 45 {++ n}) n})\n" +
                         "{def n 40}\n" +
                         "#(spray [{while (> 45 {++ n}) n}])\n" +
-                        "/~~\n" +
                         "{def s #set[1 2 3 5 8]}\n" +
                         "#0(s 'add' 13)\n" +
-                        "s" +
-                        "\n"
+                        "s\n" +
+                        "{mutant hulk {def _hulk {or _hulk 0}} {++ _hulk}}\n" +
+                        "hulk hulk hulk\n"
 
         );
         Context context = new Context();

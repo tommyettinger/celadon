@@ -298,6 +298,22 @@ public class Context extends StackMap<String, Token> implements Serializable{
             }
         });
 
+        reserveMacro("mutant", new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(start + 1 < end)
+                {
+                    String name = tokens.get(start).contents;
+                    Token f = Token.envoy(new Mutant(context, name, tokens, start + 1, end));
+                    tokens.clear();
+                    assign(name, f);
+                    return 0;
+                }
+                tokens.clear();
+                return 0;
+            }
+        });
+
         reserveMacro("if", new IMorph() {
             @Override
             public int morph(Context context, List<Token> tokens, int start, int end) {
@@ -902,7 +918,8 @@ public class Context extends StackMap<String, Token> implements Serializable{
         {
             return get(key);
         }
-        throw new NoSuchElementException("Encountered unknown symbol: " + key);
+        return get("null");
+        //throw new NoSuchElementException("Encountered unknown symbol: " + key);
     }
     public Context push(String key, Token value)
     {
