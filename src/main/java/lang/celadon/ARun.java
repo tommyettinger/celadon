@@ -16,6 +16,10 @@ public abstract class ARun implements Serializable {
     public List<Token> names, body;
     public String title;
     protected final List<Token> bodyFixed;
+    public ARun()
+    {
+        this(new Context(true));
+    }
     public ARun(final Context context, final List<Token> tokens,
                 final int nameStart, final int nameEnd, final int bodyStart, final int bodyEnd)
     {

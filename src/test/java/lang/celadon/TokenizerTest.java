@@ -58,9 +58,9 @@ public class TokenizerTest {
                         "{def s #set[1 2 3 5 8]}\n" +
                         "#0(s 'add' 13)\n" +
                         "s\n" +
-                        "{mutant hulk {def _hulk {or _hulk 0}} {++ _hulk}}\n" +
-                        "hulk hulk hulk\n"
-
+                        "#0(chaos 'setState' 99)\n" +
+                        "{mutant 1d20 (chaos 'between' 1 21)}\n" +
+                        "1d20 1d20 1d20\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

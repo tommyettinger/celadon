@@ -18,6 +18,12 @@ public class Context extends StackMap<String, Token> implements Serializable{
         reserved = new HashSet<>(32, 0.625f);
         core();
     }
+    public Context(boolean empty)
+    {
+        super(empty ? 0 : 256, 0.625f, Tools.WispStringHasher.instance);
+        reserved = new HashSet<>(32, 0.625f);
+        if(!empty) core();
+    }
     public Context(Context existing)
     {
         super(existing, existing.f, Tools.WispStringHasher.instance);
@@ -54,6 +60,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
         reserve("null",null);
         reserve("true", true);
         reserve("false", false);
+        put("chaos", Token.stable(new Wrappers._StatefulRNG()));
         reserveBracket("(", new IMorph() {
             @Override
             public int morph(Context context, final List<Token> tokens, int start, int end) {
@@ -870,7 +877,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
             }
         }));
 
-        reserveMacro("++", new IMorph() {
+        put("++", Token.macro(new IMorph() {
             @Override
             public int morph(Context context, List<Token> tokens, int start, int end) {
                 if(start + 1 == end)
@@ -888,9 +895,9 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 tokens.clear();
                 return 0;
             }
-        });
+        }));
 
-        reserveMacro("--", new IMorph() {
+        put("--", Token.macro(new IMorph() {
             @Override
             public int morph(Context context, List<Token> tokens, int start, int end) {
                 if(start + 1 == end)
@@ -908,8 +915,17 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 tokens.clear();
                 return 0;
             }
-        });
-
+        }));
+        put("rng", Token.function(new ARun(this, "rng") {
+            @Override
+            public Token run(List<Token> parameters) {
+                return parameters.isEmpty()
+                        ? Token.stable(new Wrappers._StatefulRNG())
+                        : parameters.get(0).numeric()
+                        ? Token.stable(new Wrappers._StatefulRNG(parameters.get(0).asLong()))
+                        : Token.stable(new Wrappers._StatefulRNG(parameters.get(0).asString()));
+            }
+        }));
     }
 
     public Token peek(String key)
