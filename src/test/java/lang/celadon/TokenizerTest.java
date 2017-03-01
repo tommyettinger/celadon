@@ -22,7 +22,7 @@ public class TokenizerTest {
                 "{defmacro duplicate [thing] [thing thing]}\n" +
                 "(+ {duplicate 333})"));
         TList tokens = Token.tokenize(
-                "~~/" +
+                //"~~/" +
                         "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{= ten (+ 5 5)}\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
@@ -42,7 +42,6 @@ public class TokenizerTest {
                         "{while (> 50 {++ n}) n}\n" +
                         "[] [1] [1 2] [1 1]\n" +
                         "; #set[] #set[1] #set[1 2] #set[1 1] #set[NaN (+ Infinity (/ -0.0 -0.0))]\n" +
-                        "/~~\n" +
                         "{defn sip [a] a}\n" +
                         "{defn gulp [] []}\n" +
                         "{defn list [] ...}\n" +
@@ -58,9 +57,13 @@ public class TokenizerTest {
                         "{def s #set[1 2 3 5 8]}\n" +
                         "#0(s 'add' 13)\n" +
                         "s\n" +
+                        //"/~~\n" +
                         "#0(chaos 'setState' 99)\n" +
                         "{mutant 1d20 (chaos 'between' 1 21)}\n" +
-                        "1d20 1d20 1d20\n"
+                        "[1d20 1d20] [1d20 1d20]\n" +
+                        "{defn 2d20 [] (+ 1d20 1d20)}\n" +
+                        "#0(chaos 'setState' 99)\n" +
+                        "(2d20) (2d20)\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

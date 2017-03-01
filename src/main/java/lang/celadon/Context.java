@@ -1024,7 +1024,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
                         + ", first bracket is " + t2.bracket);
             } else if ((i0 = t.special) < 0)
             {
-                i -= 1 + ((IMorph) t.solid).morph(this, tokens, i, i - i0);
+                i -= ((IMorph) t.solid).morph(this, tokens, i, i - i0);
             } else if(ql == 0)
             {
                 tokens.set(i--, peek(t.contents));

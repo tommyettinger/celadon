@@ -67,15 +67,15 @@ public class Mutant implements IMorph, Serializable {
             return 0;
         if(r.solid instanceof Collection)
         {
-            tokens.addAll((Collection<? extends Token>) r.solid);
+            tokens.addAll(start, (Collection<? extends Token>) r.solid);
             return tokens.size();
         }
         if(r.solid instanceof Token)
         {
-            tokens.add((Token)r.solid);
+            tokens.add(start, (Token)r.solid);
             return 1;
         }
-        tokens.add(Token.stable(r));
+        tokens.add(start, r);
         return 1;
     }
 
