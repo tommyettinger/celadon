@@ -22,7 +22,7 @@ public class TokenizerTest {
                 "{defmacro duplicate [thing] [thing thing]}\n" +
                 "(+ {duplicate 333})"));
         TList tokens = Token.tokenize(
-                //"~~/" +
+                "~~/" +
                         "'Hello, World!' 42 (- -Infinity) true null (% (+ 222 -111 555) (* 52 (/ 5 2) 3 2))\n"+
                         "{= ten (+ 5 5)}\n" +
                         "[1 2 3] [ten ten (+ ten ten)] {def m 1}\n" +
@@ -57,13 +57,14 @@ public class TokenizerTest {
                         "{def s #set[1 2 3 5 8]}\n" +
                         "#0(s 'add' 13)\n" +
                         "s\n" +
-                        //"/~~\n" +
-                        "#0(chaos 'setState' 99)\n" +
-                        "{mutant 1d20 (chaos 'between' 1 21)}\n" +
+                        "/~~\n" +
+                        "#0(chaos:setState 99)\n" +
+                        "{mutant 1d20 (chaos:between 1 21)}\n" +
                         "[1d20 1d20] [1d20 1d20]\n" +
                         "{defn 2d20 [] (+ 1d20 1d20)}\n" +
-                        "#0(chaos 'setState' 99)\n" +
-                        "(2d20) (2d20)\n"
+                        "#0(chaos:setState 99)\n" +
+                        "(2d20) (2d20)\n" +
+                        "\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));

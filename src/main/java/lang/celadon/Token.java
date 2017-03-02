@@ -22,7 +22,7 @@ public class Token implements Serializable {
 
     static final Token RESERVED = new Token(0, (0.0f / 0.0f) * 3.14f);
 
-    private Token(int specialty, Object solidState)
+    Token(int specialty, Object solidState)
     {
         special = specialty;
         solid = solidState;
@@ -78,7 +78,6 @@ public class Token implements Serializable {
         this.mode = mode;
         closing = isClosingBracket;
     }
-
 
     public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
             "|({=string}({=mode}#({=remove}~)?[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +

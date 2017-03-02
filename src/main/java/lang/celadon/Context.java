@@ -55,6 +55,12 @@ public class Context extends StackMap<String, Token> implements Serializable{
         reserved.add(name);
         put(name, Token.macro(item));
     }
+
+    void reserveUnusual(String name, Token item)
+    {
+        reserved.add(name);
+        put(name, item);
+    }
     protected void core()
     {
         reserve("null",null);
@@ -244,6 +250,36 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 return 0;
             }
         });
+
+        reserveUnusual(":", new Token(-256, new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                int ns = context.nextStop(tokens, start + 1);
+                if(ns < start)
+                    return 0;
+                else if(ns == start + 2)
+                {
+                    Token t = tokens.get(start + 1);
+                    if(t.contents != null && !t.contents.isEmpty())
+                    {
+                        Token r = Token.stable(t);
+                        r.contents = t.contents;
+                        tokens.set(start, r);
+                        tokens.remove(start + 1);
+                        return 1;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                List<Token> sl = tokens.subList(start + 1, ns);
+                TList tl = new TList(sl);
+                sl.clear();
+                tokens.add(start, Token.stable(tl));
+                return 1;
+            }
+        }));
 
         reserveBracket("#map[", new IMorph() {
             @Override
@@ -1069,6 +1105,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
         IntVLA bracketPositions = new IntVLA(16);
         for (int i = start; i < tokens.size(); i++) {
             t = tokens.get(i);
+
             if (t.special > 0) {
                 if(bracketPositions.size == 0)
                 {
@@ -1098,7 +1135,8 @@ public class Context extends StackMap<String, Token> implements Serializable{
             else
             {
                 tokens.remove(i);
-                return i;
+                if((-t.special & 259) < 256)
+                    return i;
             }
         }
         return -1;
@@ -1108,7 +1146,6 @@ public class Context extends StackMap<String, Token> implements Serializable{
         if(tokens == null || tokens.isEmpty() || start >= tokens.size())
             return -1;
         Token t, t2, t3;
-        int i0;
         IntVLA bracketPositions = new IntVLA(16);
         for (int i = start; i < tokens.size(); i++) {
             t = tokens.get(i);
@@ -1124,7 +1161,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
             } else if (t.bracket != null) {
                 if (!t.closing) {
                     bracketPositions.add(i);
-                } else if (t.bracketsMatch(t2 = tokens.get(i0 = bracketPositions.pop()))) {
+                } else if (t.bracketsMatch(t2 = tokens.get(bracketPositions.pop()))) {
                     t3 = peek(t2.mode);
                     if(t3.special < 0 && bracketPositions.size == 0)
                     {
@@ -1135,7 +1172,7 @@ public class Context extends StackMap<String, Token> implements Serializable{
             }
             else
             {
-                if(bracketPositions.size == 0)
+                if((-t.special & 259) < 256 && bracketPositions.size == 0)
                     return i+1;
             }
         }
