@@ -61,6 +61,66 @@ public class Context extends StackMap<String, Token> implements Serializable{
         reserved.add(name);
         put(name, item);
     }
+
+    static final Token quote = new Token(-256, new IMorph() {
+        @Override
+        public int morph(Context context, List<Token> tokens, int start, int end) {
+            int ns = context.nextStop(tokens, start + 1);
+            if(ns < start)
+                return 0;
+            else if(ns == start + 2)
+            {
+                Token t = tokens.get(start + 1);
+                if(t.contents != null && !t.contents.isEmpty())
+                {
+                    Token r = Token.stable(t);
+                    r.contents = t.contents;
+                    tokens.set(start, r);
+                    tokens.remove(start + 1);
+                    return 1;
+                }
+                else
+                {
+                    tokens.remove(start);
+                    return 0;
+                }
+            }
+            List<Token> sl = tokens.subList(start + 1, ns);
+            TList tl = new TList(sl);
+            sl.clear();
+            tokens.add(start, Token.stable(tl));
+            return 1;
+        }
+    }), unquote = new Token(-257, new IMorph() {
+        @Override
+        public int morph(Context context, List<Token> tokens, int start, int end) {
+            int ns = context.step(tokens, start);
+            if(ns < start)
+                return 0;
+
+            Token t = tokens.get(ns);
+            if(t.solid != null && t.solid instanceof Token)
+            {
+                tokens.set(ns, (Token) t.solid);
+                return 1;
+            }
+            else if(t.solid != null && t.solid instanceof TList) {
+                tokens.remove(ns);
+                tokens.addAll(start, (TList) t.solid);
+                return ((TList) t.solid).size();
+            }
+            else if(t.contents != null && !t.contents.isEmpty() && context.containsKey(t.contents))
+            {
+                tokens.set(ns, context.get(t.contents));
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    });
+
     protected void core()
     {
         reserve("null",null);
@@ -251,35 +311,10 @@ public class Context extends StackMap<String, Token> implements Serializable{
             }
         });
 
-        reserveUnusual(":", new Token(-256, new IMorph() {
-            @Override
-            public int morph(Context context, List<Token> tokens, int start, int end) {
-                int ns = context.nextStop(tokens, start + 1);
-                if(ns < start)
-                    return 0;
-                else if(ns == start + 2)
-                {
-                    Token t = tokens.get(start + 1);
-                    if(t.contents != null && !t.contents.isEmpty())
-                    {
-                        Token r = Token.stable(t);
-                        r.contents = t.contents;
-                        tokens.set(start, r);
-                        tokens.remove(start + 1);
-                        return 1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
-                List<Token> sl = tokens.subList(start + 1, ns);
-                TList tl = new TList(sl);
-                sl.clear();
-                tokens.add(start, Token.stable(tl));
-                return 1;
-            }
-        }));
+        reserveUnusual(":", quote);
+
+
+        reserveUnusual("@", unquote);
 
         reserveBracket("#map[", new IMorph() {
             @Override
@@ -346,7 +381,11 @@ public class Context extends StackMap<String, Token> implements Serializable{
             public int morph(Context context, List<Token> tokens, int start, int end) {
                 if(start + 1 < end)
                 {
-                    String name = tokens.get(start).contents;
+                    String name = tokens.get(start).asString();
+                    if(name.equals("@")) {
+                        ((IMorph)unquote.solid).morph(context, tokens, ++start, start+1);
+                        name = tokens.get(start).asString();
+                    }
                     Token f = Token.envoy(new Mutant(context, name, tokens, start + 1, end));
                     tokens.clear();
                     assign(name, f);
@@ -580,6 +619,35 @@ public class Context extends StackMap<String, Token> implements Serializable{
                 return 1;
             }
         });
+
+        put("repeat", Token.macro(new IMorph() {
+            @Override
+            public int morph(Context context, List<Token> tokens, int start, int end) {
+                if(end - 2 < start)
+                    return 0;
+                int pos = context.step(tokens, start),
+                        ct = tokens.get(pos).asInt(),
+                        ns = context.nextStop(tokens, pos+1);
+                if(ns == pos+2)
+                {
+                    Token body = tokens.get(pos+1);
+                    tokens.clear();
+                    for (int i = 0; i < ct; i++) {
+                        tokens.add(body);
+                    }
+                    return ct;
+                }
+                else
+                {
+                    List<Token> body = new TList(tokens.subList(pos+1, ns+1));
+                    tokens.clear();
+                    for (int i = 0; i < ct; i++) {
+                        tokens.addAll(body);
+                    }
+                    return ct * body.size();
+                }
+            }
+        }));
 
         put("==", Token.function(new ARun(this, "==") {
             @Override

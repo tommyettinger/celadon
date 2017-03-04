@@ -91,7 +91,7 @@ public class Token implements Serializable {
               "|({=digits}[0-9]+)))(?:[lnLN]?)(?![^\\s,\\(\\)\\[\\]\\{\\}\"';#~]))" +
             "|({=open}({=mode}(?:#({=remove}~)?[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\\(\\[\\{])))" +
             "|({=close}({=bracket}[\\)\\]\\}]))" +
-            "|({=contents}[\\\\:@`])" +
+            "|({=eval}[:@])" +
             "|({=contents}[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]+)"
     );
     public static final Matcher m = pattern.matcher();
@@ -143,7 +143,7 @@ public class Token implements Serializable {
                         tokens.add(stable(0x7FFFFFFFFFFFFFFFL));
                     }
                 }
-            }else if(mr.isCaptured("double"))
+            } else if(mr.isCaptured("double"))
             {
                 try {
                     tokens.add(stable(Double.parseDouble(mr.group("double"))));
@@ -151,6 +151,15 @@ public class Token implements Serializable {
                 {
                     tokens.add(stable(Double.POSITIVE_INFINITY));
                 }
+            } else if(mr.isCaptured("eval"))
+            {
+                String e = mr.group("eval");
+                if(e.equals(":"))
+                    tokens.add(Context.quote);
+                //else if(e.equals("@")
+                    //tokens.add(Context.unquote);
+                else
+                    tokens.add(new Token(mr.group("eval")));
             }
             else
                 tokens.add(new Token(mr.group("contents"), null, false, mr.group("mode")));

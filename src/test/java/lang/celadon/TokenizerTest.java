@@ -55,16 +55,18 @@ public class TokenizerTest {
                         "{def n 40}\n" +
                         "#(spray [{while (> 45 {++ n}) n}])\n" +
                         "{def s #set[1 2 3 5 8]}\n" +
-                        "#0(s 'add' 13)\n" +
+                        "#0(s:add 13)\n" +
                         "s\n" +
-                        "/~~\n" +
-                        "#0(chaos:setState 99)\n" +
+                        "(@:chaos:setState 999)\n" +
+                        //"#0(chaos:setState 99)\n" +
                         "{mutant 1d20 (chaos:between 1 21)}\n" +
                         "[1d20 1d20] [1d20 1d20]\n" +
                         "{defn 2d20 [] (+ 1d20 1d20)}\n" +
-                        "#0(chaos:setState 99)\n" +
+                        "#0(chaos:setState 999)\n" +
                         "(2d20) (2d20)\n" +
-                        "\n"
+                        "/~~\n" +
+                        "{defmacro dice [name amount sides] {mutant @name (+ {repeat amount (chaos:between 1 (+ 1 sides))})} []}\n" +
+                        "{dice '7d7' 7 7} 7d7 7d7 7d7\n"
         );
         Context context = new Context();
         System.out.println(context.evaluate(tokens));
