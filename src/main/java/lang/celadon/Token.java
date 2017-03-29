@@ -81,7 +81,7 @@ public class Token implements Serializable {
 
     public static final Pattern pattern = Pattern.compile("({=remove}(?:;|#!)(\\V*))" +
             "|({=string}({=mode}#({=remove}~)?[^\\s,\\\\:@`\\(\\)\\[\\]\\{\\}\"';#~]*)?({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
-            "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+            //"|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
             "|({=remove}({=bracket}~+[%~+=*_\\$\\?\\|-]*/)(?:[\\d\\D]*?){\\/bracket})" +
             "|(?:({=double}({=sign}[+-]?)(?:(?:(?:NaN)|(?:Infinity))|(?:({=digits}[0-9]+\\.[0-9]*" +
               "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))))(?:[fmFM]?)(?![^\\s,\\(\\)\\[\\]\\{\\}\"';#~]))" +
@@ -159,7 +159,7 @@ public class Token implements Serializable {
                 //else if(e.equals("@")
                     //tokens.add(Context.unquote);
                 else
-                    tokens.add(new Token(mr.group("eval")));
+                    tokens.add(new Token(e));
             }
             else
                 tokens.add(new Token(mr.group("contents"), null, false, mr.group("mode")));
