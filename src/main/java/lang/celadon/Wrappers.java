@@ -23,7 +23,7 @@ public class Wrappers {
          * Seeded constructor uses LightRNG, which is of high quality, but low period (which rarely matters for games),
          * and has good speed and tiny state size.
          *
-         * @param seed
+         * @param seed any long
          */
         public _StatefulRNG(long seed) {
             super(seed);
@@ -33,7 +33,7 @@ public class Wrappers {
          * String-seeded constructor uses the hash of the String as a seed for LightRNG, which is of high quality, but low
          * period (which rarely matters for games), and has good speed and tiny state size.
          *
-         * @param seedString
+         * @param seedString any String; may be null
          */
         public _StatefulRNG(String seedString) {
             super(seedString);

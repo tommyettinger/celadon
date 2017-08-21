@@ -52,14 +52,14 @@
     </distributionManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.version>3.3</maven.compiler.version>
-        <maven.javadoc.version>2.10.3</maven.javadoc.version>
+        <maven.compiler.version>3.6.1</maven.compiler.version>
+        <maven.javadoc.version>2.10.4</maven.javadoc.version>
         <maven.resources.version>2.7</maven.resources.version>
-        <maven.source.version>2.4</maven.source.version>
+        <maven.source.version>3.0.1</maven.source.version>
         <maven.gpg.version>1.6</maven.gpg.version>
         <jdk.version>1.7</jdk.version>
         <junit.version>4.11</junit.version>
-		<squidlib.version>3.0.0-b8</squidlib.version>
+		<squidlib.version>ae704e7d4f</squidlib.version>
     </properties>
 	
 	<repositories>
@@ -71,7 +71,7 @@
 	
     <dependencies>
     	<dependency>
-            <groupId>com.squidpony</groupId>
+            <groupId>com.github.SquidPony.SquidLib</groupId>
             <artifactId>squidlib-util</artifactId>
 	        <version>${squidlib.version}</version>
 	    </dependency>
@@ -204,7 +204,7 @@
                         <link>http://docs.oracle.com/javase/1.5.0/docs/api/</link>
                     </links>
                     <linksource>true</linksource>
-                    <detectOfflineLinks>false</detectOfflineLinks>
+                    <detectOfflineLinks>true</detectOfflineLinks>
                 </configuration>
             </plugin>
         </plugins>
