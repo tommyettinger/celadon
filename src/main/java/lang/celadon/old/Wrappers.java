@@ -1,4 +1,4 @@
-package lang.celadon;
+package lang.celadon.old;
 
 import squidpony.squidmath.RandomnessSource;
 import squidpony.squidmath.StatefulRNG;

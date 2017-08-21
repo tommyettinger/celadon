@@ -1,5 +1,6 @@
-package lang.celadon;
+package lang.celadon.old;
 
+import lang.celadon.StackMap;
 import squidpony.squidmath.IntVLA;
 import squidpony.squidmath.OrderedMap;
 
