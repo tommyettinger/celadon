@@ -8,14 +8,14 @@ import java.util.Objects;
  * Indirection cell; has a name that may be used to look it up, and any Object for a value.
  * Created by Tommy Ettinger on 8/20/2017.
  */
-public class Name {
+public class Cel {
     public String title;
     public Object ref;
 
-    public Name() {
+    public Cel() {
     }
 
-    public Name(String title, Object ref) {
+    public Cel(String title, Object ref) {
         this.title = title;
         this.ref = ref;
     }
@@ -33,12 +33,12 @@ public class Name {
         {
             if (o == null) return false;
             if (getClass() == o.getClass()) {
-                Name item = (Name) o;
+                Cel item = (Cel) o;
                 return ref.equals(item.ref);
             } else
                 return ref.getClass() == o.getClass() && ref.equals(o);
         }
-        else return o == null || (o.getClass() == getClass() && ((Name)o).ref == null);
+        else return o == null || (o.getClass() == getClass() && ((Cel)o).ref == null);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Name {
         @Override
         public int hash(Object data)
         {
-            return data == null || !(data instanceof Name) ? 0 : CrossHash.hash(((Name)data).title);
+            return data == null || !(data instanceof Cel) ? 0 : CrossHash.hash(((Cel)data).title);
         }
 
         @Override
