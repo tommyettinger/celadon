@@ -1,5 +1,9 @@
 package lang.celadon;
 
+import squidpony.squidmath.CrossHash;
+
+import java.util.Objects;
+
 /**
  * Indirection cell; has a name that may be used to look it up, and any Object for a value.
  * Created by Tommy Ettinger on 8/20/2017.
@@ -40,5 +44,20 @@ public class Name {
     @Override
     public int hashCode() {
         return ref != null ? ref.hashCode() : 0;
+    }
+
+    public static class HasherByName implements CrossHash.IHasher
+    {
+        @Override
+        public int hash(Object data)
+        {
+            return data == null || !(data instanceof Name) ? 0 : CrossHash.hash(((Name)data).title);
+        }
+
+        @Override
+        public boolean areEqual(Object left, Object right)
+        {
+            return Objects.equals(left, right);
+        }
     }
 }

@@ -35,7 +35,10 @@ public class Table extends OrderedMap<Object, Object> implements ICallable {
     @Override
     public Object put(Object k, Object v) {
         if(k instanceof Number && ((Number)k).intValue() == sequentialLimit)
+        {
             ++sequentialLimit;
+            while (containsKey(sequentialLimit)) ++sequentialLimit;
+        }
         return super.put(k, v);
     }
 
@@ -48,7 +51,10 @@ public class Table extends OrderedMap<Object, Object> implements ICallable {
         else
         {
             if(k instanceof Number && ((Number)k).intValue() == sequentialLimit)
+            {
                 ++sequentialLimit;
+                while (containsKey(sequentialLimit)) ++sequentialLimit;
+            }
             return super.putAt(k, v, idx);
         }
     }
@@ -65,7 +71,10 @@ public class Table extends OrderedMap<Object, Object> implements ICallable {
     @Override
     public Object putAndMoveToFirst(Object k, Object v) {
         if(k instanceof Number && ((Number)k).intValue() == sequentialLimit)
+        {
             ++sequentialLimit;
+            while (containsKey(sequentialLimit)) ++sequentialLimit;
+        }
         return super.putAndMoveToFirst(k, v);
     }
 
@@ -81,7 +90,10 @@ public class Table extends OrderedMap<Object, Object> implements ICallable {
     @Override
     public Object putAndMoveToLast(Object k, Object v) {
         if(k instanceof Number && ((Number)k).intValue() == sequentialLimit)
+        {
             ++sequentialLimit;
+            while (containsKey(sequentialLimit)) ++sequentialLimit;
+        }
         return super.putAndMoveToLast(k, v);
     }
 
@@ -150,7 +162,10 @@ public class Table extends OrderedMap<Object, Object> implements ICallable {
         if(original instanceof Number && (s = ((Number)original).intValue()) >= 0 && s < sequentialLimit)
             sequentialLimit = s;
         if(replacement instanceof Number && ((Number)replacement).intValue() == sequentialLimit)
+        {
             ++sequentialLimit;
+            while (containsKey(sequentialLimit)) ++sequentialLimit;
+        }
         return super.alter(original, replacement);
     }
 
@@ -254,8 +269,17 @@ public class Table extends OrderedMap<Object, Object> implements ICallable {
         }
     }
 
+    public ListIterator<Integer> seqKeyIterator()
+    {
+        return new SequenceKeyIterator();
+    }
+    public ListIterator<Object> seqValueIterator()
+    {
+        return new SequenceValueIterator();
+    }
+
     @Override
-    public void call(Exchange exchange, String name) {
+    public void call(Manager manager, String name) {
 
     }
 }
