@@ -23,6 +23,24 @@ public class Cel {
     @Override
     public String toString() {
         if(ref == null) return title == null ? "null" : title + " = UNBOUND";
+        if(ref instanceof Syntax)
+        {
+            switch ((Syntax)ref)
+            {
+                case SYMBOL: return title;
+                case OPERATOR: return title;
+                case EVAL_LESS: return ":";
+                case EVAL_MORE: return "@";
+                case OPEN_PARENTHESIS: return "(";
+                case CLOSE_PARENTHESIS: return ")";
+                case OPEN_BRACKET: return "[";
+                case CLOSE_BRACKET: return "]";
+                case OPEN_BRACE: return "{";
+                case CLOSE_BRACE: return "}";
+                case SPLIT: return ";";
+                case COMMA: return ",";
+            }
+        }
         return ref.toString();
     }
 
@@ -60,4 +78,25 @@ public class Cel {
             return Objects.equals(left, right);
         }
     }
+    public static final Cel closeParenthesis = new Cel(")", Syntax.CLOSE_PARENTHESIS);
+    public static final Cel closeBrace = new Cel("}", Syntax.CLOSE_BRACE);
+    public static final Cel closeBracket = new Cel("]", Syntax.CLOSE_BRACKET);
+    public static final Cel openParenthesis = new Cel("(", Syntax.OPEN_PARENTHESIS);
+    public static final Cel openBrace = new Cel("{", Syntax.OPEN_BRACE);
+    public static final Cel openBracket = new Cel("[", Syntax.OPEN_BRACKET);
+    public static final Cel split = new Cel(";", Syntax.SPLIT);
+    public static final Cel comma = new Cel(",", Syntax.COMMA);
+    public static final Cel evalLess = new Cel(":", Syntax.EVAL_LESS);
+    public static final Cel evalMore = new Cel("@", Syntax.EVAL_MORE);
+    public static final Cel backslash = new Cel("`\\\\`", '\\');
+    public static final Cel carriageReturn = new Cel("`\\\r`", '\r');
+    public static final Cel newline = new Cel("`\\\n`", '\n');
+    public static final Cel tab = new Cel("`\\\t`", '\t');
+    public static final Cel doubleQuote = new Cel("`\"`", '"');
+    public static final Cel singleQuote = new Cel("`'`", '\'');
+    public static final Cel backspace = new Cel("`\\\b`", '\b');
+    public static final Cel formfeed = new Cel("`\\\f`", '\f');
+    public static final Cel backtick = new Cel("```", '`');
+    public static final Cel nul = new Cel("`\\\0`", '\0');
+
 }

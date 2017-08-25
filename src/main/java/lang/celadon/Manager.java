@@ -24,10 +24,11 @@ public class Manager extends StackMap<String, Object> {
     public Manager() {
     }
 
-    public static final Pattern pattern = Pattern.compile("({=remove}(?://|^#!)(\\V*))" +
-            "|({=char}`({=contents}[^\\\\]|(?:\\\\(?:[0-7]{1-3}|(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
+    public static final Pattern pattern = Pattern.compile("({=remove}(?://|^#!)(\\V*))" + // line comment
+            "|({=char}`({=contents}[^\\\\]|(?:\\\\(?:(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
             "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
-            "|({=gap}\\v+|;)" +
+            "|({=split}\\v+|;)" +
+            "|({=comma},)" +
             "|({=remove}({=bracket}~+!)(?:[\\d\\D]*?){\\/bracket})" +
             "|(?:({=double}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
               "|(?:({=digits}0[xX][0-9a-fA-F]+(?:\\.[0-9a-fA-F]+)?" +
@@ -69,18 +70,26 @@ public class Manager extends StackMap<String, Object> {
                 continue;
             if (mr.isCaptured("close")) {
                 if (mr.isCaptured("parenthesis"))
-                    tokens.add(new Cel(")", Syntax.CLOSE_PARENTHESIS));
+                    tokens.add(Cel.closeParenthesis);
                 else if (mr.isCaptured("brace"))
-                    tokens.add(new Cel("}", Syntax.CLOSE_BRACE));
+                    tokens.add(Cel.closeBrace);
                 else
-                    tokens.add(new Cel("]", Syntax.CLOSE_BRACKET));
+                    tokens.add(Cel.closeBracket);
             } else if (mr.isCaptured("open")) {
                 if (mr.isCaptured("parenthesis"))
-                    tokens.add(new Cel("(", Syntax.OPEN_PARENTHESIS));
+                    tokens.add(Cel.openParenthesis);
                 else if (mr.isCaptured("brace"))
-                    tokens.add(new Cel("{", Syntax.OPEN_BRACE));
+                    tokens.add(Cel.openBrace);
                 else
-                    tokens.add(new Cel("[", Syntax.OPEN_BRACKET));
+                    tokens.add(Cel.openBracket);
+            }
+            else if(mr.isCaptured("split"))
+            {
+                tokens.add(Cel.split);
+            }
+            else if(mr.isCaptured("comma"))
+            {
+                tokens.add(Cel.comma);
             }
             else if(mr.isCaptured("string"))
             {
@@ -93,13 +102,36 @@ public class Manager extends StackMap<String, Object> {
                 {
                     tokens.add(new Cel(mr.group("char"), s.charAt(0)));
                 }
-                else if(s.length() == 5)
+                else if(s.length() == 2)
                 {
-                    tokens.add(new Cel(mr.group("char"), (char)StringKit.intFromHex(s, 1, 5)));
+                    switch (s.charAt(1))
+                    {
+                        case '\\': tokens.add(Cel.backslash);
+                            break;
+                        case 'r': tokens.add(Cel.carriageReturn);
+                            break;
+                        case 'n': tokens.add(Cel.newline);
+                            break;
+                        case 't': tokens.add(Cel.tab);
+                            break;
+                        case '"': tokens.add(Cel.doubleQuote);
+                            break;
+                        case '\'': tokens.add(Cel.singleQuote);
+                            break;
+                        case 'b': tokens.add(Cel.backspace);
+                            break;
+                        case 'f': tokens.add(Cel.formfeed);
+                            break;
+                        case '`': tokens.add(Cel.backtick);
+                            break;
+                        case '0': tokens.add(Cel.nul);
+                            break;
+                        default:  tokens.add(new Cel(mr.group("char"), s.charAt(1)));
+                    }
                 }
-                else
+                else if(s.length() == 6)
                 {
-                    tokens.add(new Cel(mr.group("char"), (char)Integer.parseInt(s, 8)));
+                    tokens.add(new Cel(mr.group("char"), (char)StringKit.intFromHex(s, 2, 6)));
                 }
             }
             else if(mr.isCaptured("long"))
@@ -132,7 +164,7 @@ public class Manager extends StackMap<String, Object> {
             } else if(mr.isCaptured("eval"))
             {
                 String s = mr.group("eval");
-                tokens.add(new Cel(s, s.equals(":") ? Syntax.EVAL_LESS : Syntax.EVAL_MORE));
+                tokens.add(s.equals(":") ? Cel.evalLess : Cel.evalMore);
             }
             else if(mr.isCaptured("op"))
             {

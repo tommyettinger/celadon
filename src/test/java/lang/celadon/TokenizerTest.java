@@ -1,14 +1,23 @@
 package lang.celadon;
 
 import org.junit.Test;
+import squidpony.StringKit;
 
 /**
  * Created by Tommy Ettinger on 1/3/2017.
  */
 public class TokenizerTest {
     @Test
-    public void test1()
-    {
+    public void testBasic() {
+        Manager m = new Manager();
+        m.tokenize("[1, 0x2, 3.141592, alpha, 'hello, world!', 0x1.Cp-8, 0x7.0p-10, `!`]" +
+                "n(10 ~!block comment!~) // this is also a comment");
+        System.out.println(StringKit.join("\n", m.tokens));
+    }
+//    @Test
+//    public void testOld()
+//    {
+//
 //        System.out.println(Token.tokenize("(+ 1 2 3)"));
 //        System.out.println(Token.tokenize("(\n+\n1\n2\n3)\n"));
 //        System.out.println(Token.tokenize(";nothing here"));
@@ -71,5 +80,5 @@ public class TokenizerTest {
 //        );
 //        Context context = new Context();
 //        System.out.println(context.evaluate(tokens));
-    }
+//    }
 }
