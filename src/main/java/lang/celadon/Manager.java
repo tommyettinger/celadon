@@ -17,7 +17,7 @@ import java.util.List;
  * Created by Tommy Ettinger on 8/20/2017.
  */
 public class Manager extends StackMap<String, Object> {
-    public ArrayDeque<?> exchange = new ArrayDeque<>(32);
+    public ArrayDeque<Object> exchange = new ArrayDeque<>(32);
 
     public List<Cel> tokens;
 
@@ -45,7 +45,7 @@ public class Manager extends StackMap<String, Object> {
             "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
             "|({=eval}[:@])" +
             "|({=contents}\\p{Js}\\p{Jp}*)" +
-            "|({=op}[!@#%\\^\\&*=+|<>/?~`-]+)"
+            "|({=op}[!@#%\\^\\&*=+|<>/?~`\\.\\-]+)"
     );
     public static final Matcher m = pattern.matcher();
 

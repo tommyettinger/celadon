@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  * available for iteration as a whole, including any integer keys. Meant to act like Lua's tables.
  * Created by Tommy Ettinger on 8/20/2017.
  */
-public class Table extends OrderedMap<Object, Object> implements ICallable {
+public class Table extends OrderedMap<Object, Object> implements Methodical {
 
     public int sequentialLimit = 0;
 
