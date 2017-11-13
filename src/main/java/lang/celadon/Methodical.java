@@ -5,5 +5,5 @@ package lang.celadon;
  * Created by Tommy Ettinger on 8/20/2017.
  */
 public interface Methodical {
-    void call(Manager manager, String name);
+    void run(Manager manager, String name);
 }

@@ -11,27 +11,11 @@ public enum Syntax {
     OPEN_BRACKET,
     CLOSE_BRACKET,
     /**
-     * Similar to quote in Lisps, this blocks the evaluation of a parameter until requested.
+     * The ':' symbol, used as the "dummy object" to pass messages to for unary operators like '-' and '!'.
      */
-    EVAL_LESS,
-    /**
-     * Similar to unquote in Lisps, this evaluates an otherwise-unevaluated symbol.
-     */
-    EVAL_MORE,
-    /**
-     * When this shows up, it usually means the specific operator is stored elsewhere, such as in the title of a Cel.
-     */
-    OPERATOR,
+    UNA,
     /**
      * Any variable name that is not yet associated with a value uses this for its effective value.
      */
     SYMBOL,
-    /**
-     * Can be either a line break or an explicit semicolon.
-     */
-    SPLIT,
-    /**
-     * A literal comma, used to separate various kinds of list items and during multiple assignment/return.
-     */
-    COMMA,
 }

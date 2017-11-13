@@ -38,7 +38,7 @@ public class Core {
 
     public static Procedural plus = new Procedural() {
         @Override
-        public void proceed(Manager manager) {
+        public void run(Manager manager) {
             if(!manager.exchange.isEmpty()) {
                 if (isFloating(manager.exchange.peekFirst())) {
                     double first = asDouble(manager.exchange.pollFirst());

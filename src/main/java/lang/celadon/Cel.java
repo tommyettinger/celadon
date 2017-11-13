@@ -13,6 +13,8 @@ public class Cel {
     public Object ref;
 
     public Cel() {
+        title = null;
+        ref = null;
     }
 
     public Cel(String title, Object ref) {
@@ -28,19 +30,17 @@ public class Cel {
             switch ((Syntax)ref)
             {
                 case SYMBOL: return title;
-                case OPERATOR: return title;
-                case EVAL_LESS: return ":";
-                case EVAL_MORE: return "@";
+                case UNA: return ":";
                 case OPEN_PARENTHESIS: return "(";
                 case CLOSE_PARENTHESIS: return ")";
                 case OPEN_BRACKET: return "[";
                 case CLOSE_BRACKET: return "]";
                 case OPEN_BRACE: return "{";
                 case CLOSE_BRACE: return "}";
-                case SPLIT: return ";";
-                case COMMA: return ",";
             }
         }
+        if(ref instanceof CharSequence)
+            return "'" + ref + "'";
         return ref.toString();
     }
 
@@ -84,10 +84,12 @@ public class Cel {
     public static final Cel openParenthesis = new Cel("(", Syntax.OPEN_PARENTHESIS);
     public static final Cel openBrace = new Cel("{", Syntax.OPEN_BRACE);
     public static final Cel openBracket = new Cel("[", Syntax.OPEN_BRACKET);
-    public static final Cel split = new Cel(";", Syntax.SPLIT);
-    public static final Cel comma = new Cel(",", Syntax.COMMA);
-    public static final Cel evalLess = new Cel(":", Syntax.EVAL_LESS);
-    public static final Cel evalMore = new Cel("@", Syntax.EVAL_MORE);
+//    public static final Cel split = new Cel(";", Syntax.SPLIT);
+//    public static final Cel comma = new Cel(",", Syntax.COMMA);
+//    public static final Cel evalLess = new Cel(":", Syntax.EVAL_LESS);
+//    public static final Cel evalMore = new Cel("@", Syntax.EVAL_MORE);
+    public static final Cel una = new Cel(":", Syntax.UNA);
+
     public static final Cel backslash = new Cel("`\\\\`", '\\');
     public static final Cel carriageReturn = new Cel("`\\\r`", '\r');
     public static final Cel newline = new Cel("`\\\n`", '\n');

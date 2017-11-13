@@ -5,5 +5,5 @@ package lang.celadon;
  * Created by Tommy Ettinger on 8/27/2017.
  */
 public interface Procedural {
-    void proceed(Manager manager);
+    void run(Manager manager);
 }

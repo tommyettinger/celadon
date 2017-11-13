@@ -169,6 +169,27 @@ public class Table extends OrderedMap<Object, Object> implements Methodical {
         return super.alter(original, replacement);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        int n = this.size();
+        int i = 0;
+        boolean first = true;
+        s.append("{");
+
+        for(; i < n; i++) {
+            s.append(this.keyAt(i));
+            if (first) {
+                first = false;
+            } else {
+                s.append(", ");
+            }
+        }
+
+        s.append("}");
+        return s.toString();
+    }
+
     public final class SequenceKeyIterator implements ListIterator<Integer>, Serializable {
         private static final long serialVersionUID = 0L;
         private int curr = 0;
@@ -279,7 +300,7 @@ public class Table extends OrderedMap<Object, Object> implements Methodical {
     }
 
     @Override
-    public void call(Manager manager, String name) {
+    public void run(Manager manager, String name) {
 
     }
 }

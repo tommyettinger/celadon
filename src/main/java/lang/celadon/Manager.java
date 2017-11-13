@@ -24,29 +24,72 @@ public class Manager extends StackMap<String, Object> {
     public Manager() {
     }
 
-    public static final Pattern pattern = Pattern.compile("({=remove}(?://|^#!)(\\V*))" + // line comment
-            "|({=char}`({=contents}[^\\\\]|(?:\\\\(?:(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
-            "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
-            "|({=split}\\v+|;)" +
-            "|({=comma},)" +
-            "|({=remove}({=bracket}~+!)(?:[\\d\\D]*?){\\/bracket})" +
-            "|(?:({=double}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
-              "|(?:({=digits}0[xX][0-9a-fA-F]+(?:\\.[0-9a-fA-F]+)?" +
-                "(?:[Pp](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))))" + // hex float
-              "|(?:({=digits}[0-9]+\\.[0-9]*" +
-                "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))" + // scientific notation
-            "))(?:[fmFMdD]?)\\b)" +
-            "|(?:({=long}({=sign}[+-]?)" +
-              "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
-                "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
-                "|({=digits}[0-9]+)))" +
-            "(?:[lnLN]?)\\b)" +
-            "|({=open}({=parenthesis}\\()|({=brace}\\{)|({=bracket}\\[))" +
-            "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
-            "|({=eval}[:@])" +
-            "|({=contents}\\p{Js}\\p{Jp}*)" +
-            "|({=op}[!@#%\\^\\&*=+|<>/?~`\\.\\-]+)"
+    public static final Pattern pattern = Pattern.compile(
+                    "({=remove}##)?" +
+                    "({=remove}(?:;|^#!)(\\V*))" + // line comment
+                    "|({=char}`({=contents}[^\\\\]|(?:\\\\(?:(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
+                    "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+                    "|({=remove}({=bracket}~+!)(?:[\\d\\D]*?){\\/bracket})" +
+                    "|(?:({=float}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
+                    "|(?:({=digits}0[xX][0-9a-fA-F]*\\.(?:[0-9a-fA-F]+)" +
+                    "(?:[Pp](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))))" + // hex float
+                    "|(?:({=digits}[0-9]+\\.[0-9]*" +
+                    "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))" + // scientific notation
+                    "))(?:[fF])\\b)" +
+                    "|(?:({=double}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
+                    "|(?:({=digits}0[xX][0-9a-fA-F]*\\.(?:[0-9a-fA-F]+)" +
+                    "(?:[Pp](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))))" + // hex float
+                    "|(?:({=digits}[0-9]+\\.[0-9]*" +
+                    "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))" + // scientific notation
+                    "))(?:[dD]?)\\b)" +
+                    "|(?:({=long}({=sign}[+-]?)" +
+                    "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
+                    "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
+                    "|({=digits}[0-9]+)))" +
+                    "[lL]\\b)" +
+                    "|(?:({=int}({=sign}[+-]?)" +
+                    "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
+                    "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
+                    "|({=digits}[0-9]+)))" +
+                    "\\b)" +
+                    "|({=open}({=parenthesis}\\()|({=brace}\\{)|({=bracket}\\[))" +
+                    "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
+                    "|({=una}[:])" +
+                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\s]+)"
     );
+//    public static final Pattern pattern = Pattern.compile(
+//            "({=remove}##)?" +
+//                    "({=remove}(?:;|^#!)(\\V*))" + // line comment
+//                    "|({=char}`({=contents}[^\\\\]|(?:\\\\(?:(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
+//                    "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
+//                    "|({=remove}({=bracket}~+!)(?:[\\d\\D]*?){\\/bracket})" +
+//                    "|(?:({=float}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
+//                    "|(?:({=digits}0[xX][0-9a-fA-F]*\\.(?:[0-9a-fA-F]+)" +
+//                    "(?:[Pp](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))))" + // hex float
+//                    "|(?:({=digits}[0-9]+\\.[0-9]*" +
+//                    "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))" + // scientific notation
+//                    "))(?:[fF])\\b)" +
+//                    "|(?:({=double}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
+//                    "|(?:({=digits}0[xX][0-9a-fA-F]*\\.(?:[0-9a-fA-F]+)" +
+//                    "(?:[Pp](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))))" + // hex float
+//                    "|(?:({=digits}[0-9]+\\.[0-9]*" +
+//                    "(?:[Ee](?:[+-]?(?=[1-9]|0(?![0-9]))[0-9]+))?))" + // scientific notation
+//                    "))(?:[dD]?)\\b)" +
+//                    "|(?:({=long}({=sign}[+-]?)" +
+//                    "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
+//                    "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
+//                    "|({=digits}[0-9]+)))" +
+//                    "[lL]\\b)" +
+//                    "|(?:({=int}({=sign}[+-]?)" +
+//                    "(?:(?:({=hex}0[xX])({=digits}[0-9a-fA-F]{1,16}))" +
+//                    "|(?:({=bin}0[bB])({=digits}[01]{1,64}))" +
+//                    "|({=digits}[0-9]+)))" +
+//                    "\\b)" +
+//                    "|({=open}({=parenthesis}\\()|({=brace}\\{)|({=bracket}\\[))" +
+//                    "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
+//                    "|({=una}[:])" +
+//                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\s]+)"
+//    );
     public static final Matcher m = pattern.matcher();
 
     public void tokenize(CharSequence text)
@@ -82,14 +125,6 @@ public class Manager extends StackMap<String, Object> {
                     tokens.add(Cel.openBrace);
                 else
                     tokens.add(Cel.openBracket);
-            }
-            else if(mr.isCaptured("split"))
-            {
-                tokens.add(Cel.split);
-            }
-            else if(mr.isCaptured("comma"))
-            {
-                tokens.add(Cel.comma);
             }
             else if(mr.isCaptured("string"))
             {
@@ -137,23 +172,28 @@ public class Manager extends StackMap<String, Object> {
             else if(mr.isCaptured("long"))
             {
                 if(mr.isCaptured("hex"))
-                    tokens.add(new Cel(mr.group("long"), mr.group("sign").equals("-")
+                    tokens.add(new Cel(mr.group("long"), "-".equals(mr.group("sign"))
                             ? -StringKit.longFromHex(mr.group("digits"))
                             : StringKit.longFromHex(mr.group("digits"))));
                 else if(mr.isCaptured("bin"))
-                    tokens.add(new Cel(mr.group("long"), mr.group("sign").equals("-")
+                    tokens.add(new Cel(mr.group("long"), "-".equals(mr.group("sign"))
                             ? -StringKit.longFromBin(mr.group("digits"))
                             : StringKit.longFromBin(mr.group("digits"))));
                 else
                 {
-                    try {
-                        tokens.add(new Cel(mr.group("long"), Long.parseLong(mr.group("long"))));
-                    }catch (NumberFormatException nfe)
-                    {
-                        tokens.add(new Cel(mr.group("long"), 0x7FFFFFFFFFFFFFFFL));
-                    }
+                    tokens.add(new Cel(mr.group("long"), StringKit.longFromDec(mr.group("long"))));
                 }
-            } else if(mr.isCaptured("double"))
+            }
+            else if(mr.isCaptured("float"))
+            {
+                try {
+                    tokens.add(new Cel(mr.group("float"), Float.parseFloat(mr.group("float"))));
+                }catch (NumberFormatException nfe)
+                {
+                    tokens.add(new Cel(mr.group("float"), Float.POSITIVE_INFINITY));
+                }
+            }
+            else if(mr.isCaptured("double"))
             {
                 try {
                     tokens.add(new Cel(mr.group("double"), Double.parseDouble(mr.group("double"))));
@@ -161,15 +201,26 @@ public class Manager extends StackMap<String, Object> {
                 {
                     tokens.add(new Cel(mr.group("double"), Double.POSITIVE_INFINITY));
                 }
-            } else if(mr.isCaptured("eval"))
-            {
-                String s = mr.group("eval");
-                tokens.add(s.equals(":") ? Cel.evalLess : Cel.evalMore);
             }
-            else if(mr.isCaptured("op"))
+            else if(mr.isCaptured("int"))
             {
-                String s = mr.group("op");
-                tokens.add(new Cel(s, Syntax.OPERATOR));
+                if(mr.isCaptured("hex"))
+                    tokens.add(new Cel(mr.group("int"), "-".equals(mr.group("sign"))
+                            ? -StringKit.intFromHex(mr.group("digits"))
+                            : StringKit.intFromHex(mr.group("digits"))));
+                else if(mr.isCaptured("bin"))
+                    tokens.add(new Cel(mr.group("int"), "-".equals(mr.group("sign"))
+                            ? -StringKit.intFromBin(mr.group("digits"))
+                            : StringKit.intFromBin(mr.group("digits"))));
+                else
+                {
+                    tokens.add(new Cel(mr.group("int"), StringKit.intFromDec(mr.group("int"))));
+                }
+            }
+
+            else if(mr.isCaptured("una"))
+            {
+                tokens.add(Cel.una);
             }
             else
                 tokens.add(new Cel(mr.group("contents"), Syntax.SYMBOL));
