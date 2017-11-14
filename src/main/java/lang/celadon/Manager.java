@@ -54,8 +54,10 @@ public class Manager extends StackMap<String, Object> {
                     "\\b)" +
                     "|({=open}({=parenthesis}\\()|({=brace}\\{)|({=bracket}\\[))" +
                     "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
-                    "|({=una}[:])" +
-                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\s]+)"
+                    "|({=gap}[:])" +
+                    "|({=now}@)" +
+                    "|({=access}\\.)" +
+                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\@\\.\\s]+)"
     );
 //    public static final Pattern pattern = Pattern.compile(
 //            "({=remove}##)?" +
@@ -87,7 +89,7 @@ public class Manager extends StackMap<String, Object> {
 //                    "\\b)" +
 //                    "|({=open}({=parenthesis}\\()|({=brace}\\{)|({=bracket}\\[))" +
 //                    "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
-//                    "|({=una}[:])" +
+//                    "|({=gap}[:])" +
 //                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\s]+)"
 //    );
     public static final Matcher m = pattern.matcher();
@@ -113,7 +115,12 @@ public class Manager extends StackMap<String, Object> {
                 continue;
             if (mr.isCaptured("close")) {
                 if (mr.isCaptured("parenthesis"))
-                    tokens.add(Cel.closeParenthesis);
+                {
+                    if(tokens.get(tokens.size() - 1).equals(Cel.openParenthesis))
+                        tokens.set(tokens.size() - 1,Cel.empty);
+                    else
+                        tokens.add(Cel.closeParenthesis);
+                }
                 else if (mr.isCaptured("brace"))
                     tokens.add(Cel.closeBrace);
                 else
@@ -217,10 +224,17 @@ public class Manager extends StackMap<String, Object> {
                     tokens.add(new Cel(mr.group("int"), StringKit.intFromDec(mr.group("int"))));
                 }
             }
-
-            else if(mr.isCaptured("una"))
+            else if(mr.isCaptured("gap"))
             {
-                tokens.add(Cel.una);
+                tokens.add(Cel.gap);
+            }
+            else if(mr.isCaptured("now"))
+            {
+                tokens.add(Cel.now);
+            }
+            else if(mr.isCaptured("access"))
+            {
+                tokens.add(Cel.access);
             }
             else
                 tokens.add(new Cel(mr.group("contents"), Syntax.SYMBOL));

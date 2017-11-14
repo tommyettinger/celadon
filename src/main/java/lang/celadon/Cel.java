@@ -30,7 +30,8 @@ public class Cel {
             switch ((Syntax)ref)
             {
                 case SYMBOL: return title;
-                case UNA: return ":";
+                case GAP: return ":";
+                case EMPTY: return "()";
                 case OPEN_PARENTHESIS: return "(";
                 case CLOSE_PARENTHESIS: return ")";
                 case OPEN_BRACKET: return "[";
@@ -41,6 +42,8 @@ public class Cel {
         }
         if(ref instanceof CharSequence)
             return "'" + ref + "'";
+        if(ref instanceof Character)
+            return "`" + ref + "`";
         return ref.toString();
     }
 
@@ -84,11 +87,11 @@ public class Cel {
     public static final Cel openParenthesis = new Cel("(", Syntax.OPEN_PARENTHESIS);
     public static final Cel openBrace = new Cel("{", Syntax.OPEN_BRACE);
     public static final Cel openBracket = new Cel("[", Syntax.OPEN_BRACKET);
-//    public static final Cel split = new Cel(";", Syntax.SPLIT);
-//    public static final Cel comma = new Cel(",", Syntax.COMMA);
-//    public static final Cel evalLess = new Cel(":", Syntax.EVAL_LESS);
-//    public static final Cel evalMore = new Cel("@", Syntax.EVAL_MORE);
-    public static final Cel una = new Cel(":", Syntax.UNA);
+    public static final Cel gap = new Cel(":", Syntax.GAP);
+    public static final Cel now = new Cel("@", Syntax.NOW);
+    public static final Cel access = new Cel(".", Syntax.ACCESS);
+
+    public static final Cel empty = new Cel("()", Syntax.EMPTY);
 
     public static final Cel backslash = new Cel("`\\\\`", '\\');
     public static final Cel carriageReturn = new Cel("`\\\r`", '\r');
@@ -100,5 +103,9 @@ public class Cel {
     public static final Cel formfeed = new Cel("`\\\f`", '\f');
     public static final Cel backtick = new Cel("```", '`');
     public static final Cel nul = new Cel("`\\\0`", '\0');
+//    public static final Cel split = new Cel(";", Syntax.SPLIT);
+//    public static final Cel comma = new Cel(",", Syntax.COMMA);
+//    public static final Cel evalLess = new Cel(":", Syntax.EVAL_LESS);
+//    public static final Cel evalMore = new Cel("@", Syntax.EVAL_MORE);
 
 }

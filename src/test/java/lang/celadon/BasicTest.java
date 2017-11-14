@@ -1,6 +1,7 @@
 package lang.celadon;
 
 import org.junit.Test;
+import squidpony.StringKit;
 
 /**
  * Created by Tommy Ettinger on 1/3/2017.
@@ -11,11 +12,14 @@ public class BasicTest {
         Manager m = new Manager();
         //m.tokenize("[1, 0x2, 3.141592, alpha, 'hello, world!', 0x1.Ep1, 0xF.0p-2, `!`] (10)");
         m.tokenize("[1, 0x2, 3.141592, alpha, 'hello, world!', 0x1.Ep1, 0xF.0p-2, `!`]" +
-                "\n(10 ~!block comment!~) ; this is also a comment");
+                "\n(10 ~!block comment!~) ; this is also a comment\n null () ( )");
+        System.out.println(StringKit.join(", ", m.tokens));
+        /*
         for(Cel cel : m.tokens)
         {
             System.out.println(cel.title + " : " + cel.ref);
         }
+        */
     }
 //    @Test
 //    public void testOld()
