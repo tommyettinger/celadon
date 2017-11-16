@@ -31,6 +31,8 @@ public class Cel {
             {
                 case SYMBOL: return title;
                 case GAP: return ":";
+                case NOW: return "@";
+                case ACCESS: return ".";
                 case EMPTY: return "()";
                 case OPEN_PARENTHESIS: return "(";
                 case CLOSE_PARENTHESIS: return ")";

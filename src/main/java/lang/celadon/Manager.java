@@ -25,9 +25,9 @@ public class Manager extends StackMap<String, Object> {
     }
 
     public static final Pattern pattern = Pattern.compile(
-                    "({=remove}##)?" +
                     "({=remove}(?:;|^#!)(\\V*))" + // line comment
-                    "|({=char}`({=contents}[^\\\\]|(?:\\\\(?:(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
+                    "|(?:({=remove}##\\s*)?(?:" +
+                    "({=char}`({=contents}[^\\\\]|(?:\\\\(?:(?:[uU][0-9a-fA-F]{4})|\\V)))`)" +
                     "|({=string}({=bracket}[\"'])({=contents}[\\d\\D]*?)(?<!\\\\){\\bracket})" +
                     "|({=remove}({=bracket}~+!)(?:[\\d\\D]*?){\\/bracket})" +
                     "|(?:({=float}({=sign}[+-]?)(?:(?:NaN)|(?:Infinity)" +
@@ -54,10 +54,11 @@ public class Manager extends StackMap<String, Object> {
                     "\\b)" +
                     "|({=open}({=parenthesis}\\()|({=brace}\\{)|({=bracket}\\[))" +
                     "|({=close}({=parenthesis}\\))|({=brace}\\})|({=bracket}\\]))" +
-                    "|({=gap}[:])" +
+                    "|({=gap}:)" +
                     "|({=now}@)" +
                     "|({=access}\\.)" +
-                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\@\\.\\s]+)"
+                    "|({=contents}[^,\\[\\]\\(\\)\\{\\}\\:\\@\\.\\s]+)" +
+                    "))"
     );
 //    public static final Pattern pattern = Pattern.compile(
 //            "({=remove}##)?" +
