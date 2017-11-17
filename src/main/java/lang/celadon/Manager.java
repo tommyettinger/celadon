@@ -286,7 +286,9 @@ public class Manager extends StackMap<String, Cel> {
         String title;
         for (int i = 0; i < len; i++) {
             current = resolve(tokens.get(i));
-            item = (current == null) ? null : current.ref;
+            if(current == null)
+                continue;
+            item = current.ref;
             //title = (current == null) ? null : current.title;
             if(item != null && Operator.registry.contains(item))
             {
@@ -306,6 +308,7 @@ public class Manager extends StackMap<String, Cel> {
             }
             else if(Syntax.CLOSE_PARENTHESIS.equals(item))
             {
+                topOperator = operations.peekFirst();
                 while (topOperator != null && !Syntax.OPEN_PARENTHESIS.equals(topOperator.ref)) {
                     items.addLast(topOperator);
                     operations.pollFirst();

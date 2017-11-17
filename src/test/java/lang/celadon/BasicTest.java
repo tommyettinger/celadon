@@ -23,7 +23,7 @@ public class BasicTest {
         }
         */
 
-        m.tokenize("4 + 8 * 5 - 7 / 3");
+        m.tokenize("4 + (8 * 5 - 7) / 3");
         m.shunt();
         System.out.println(StringKit.join(", ", m.items));
 
