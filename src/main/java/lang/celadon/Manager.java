@@ -8,7 +8,6 @@ import squidpony.StringKit;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The main class that handles script execution, including how symbols are associated to values, how parameters go to
@@ -16,12 +15,28 @@ import java.util.List;
  * that called the script, which is probably not Celadon code.
  * Created by Tommy Ettinger on 8/20/2017.
  */
-public class Manager extends StackMap<String, Object> {
+public class Manager extends StackMap<String, Cel> {
+    /**
+     * For exchanging program parameters and results with calling code.
+     */
     public ArrayDeque<Object> exchange = new ArrayDeque<>(32);
+    /**
+     * Shunting-yard output, in reverse Polish notation.
+     */
+    public ArrayDeque<Cel> items = new ArrayDeque<>(256),
+    /**
+     * Shunting-yard operator stack.
+     */
+    operations = new ArrayDeque<>(128);
 
-    public List<Cel> tokens;
+    /**
+     * Direct-from-source-code Cel tokens, before shunting-yard rearrangement.
+     */
+    public ArrayList<Cel> tokens;
 
     public Manager() {
+        super();
+        standardLib();
     }
 
     public static final Pattern pattern = Pattern.compile(
@@ -240,5 +255,194 @@ public class Manager extends StackMap<String, Object> {
             else
                 tokens.add(new Cel(mr.group("contents"), Syntax.SYMBOL));
         }
+    }
+
+    public Cel resolve(Cel item)
+    {
+        if(item == null || item.ref == null)
+            return Cel.nothing;
+        if(Syntax.SYMBOL.equals(item.ref)) {
+            Object o;
+            for (int i = 0; i < 256; i++) { // hard-code 256 max indirections to avoid cycles
+                o = get(item.title);
+                if (o == null)
+                    return null;
+                if (o instanceof Cel)
+                    item = ((Cel) o); // move current item to what it references
+                if(!Syntax.SYMBOL.equals(item.ref))
+                    return item;
+            }
+        }
+        return item;
+    }
+
+    public void shunt()
+    {
+        int len = tokens.size();
+        if(len <= 0)
+            return;
+        Cel current, topOperator = null;
+        Object item;
+        String title;
+        for (int i = 0; i < len; i++) {
+            current = resolve(tokens.get(i));
+            item = (current == null) ? null : current.ref;
+            //title = (current == null) ? null : current.title;
+            if(item != null && Operator.registry.contains(item))
+            {
+                Operator operator = (Operator)item;
+                topOperator = operations.peekFirst();
+                while (topOperator != null && (topOperator.ref instanceof Operator) && ((Operator)topOperator.ref).precedence > operator.precedence) {
+                    items.addLast(topOperator);
+                    operations.pollFirst();
+                    topOperator = operations.peekFirst();
+                }
+
+                operations.addFirst(current);
+            }
+            else if(Syntax.OPEN_PARENTHESIS.equals(item))
+            {
+                operations.addFirst(current);
+            }
+            else if(Syntax.CLOSE_PARENTHESIS.equals(item))
+            {
+                while (topOperator != null && !Syntax.OPEN_PARENTHESIS.equals(topOperator.ref)) {
+                    items.addLast(topOperator);
+                    operations.pollFirst();
+                    topOperator = operations.peekFirst();
+                }
+                operations.pollFirst();
+            }
+            else
+            {
+                items.addLast(current);
+            }
+        }
+        items.addAll(operations);
+        operations.clear();
+    }
+
+    public void learn(String name, Object value)
+    {
+        put(name, new Cel(name, value));
+    }
+
+    public void standardLib()
+    {
+        if(containsKey("+"))
+            return;
+        learn("+", new Operator(10) {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isNumeric(left) && Core.isNumeric(right)) {
+                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                        return new Cel(Core.asDouble(left.ref) + Core.asDouble(right.ref));
+                    }
+                    else
+                    {
+                        return new Cel(Core.asLong(left.ref) + Core.asLong(right.ref));
+                    }
+                }
+                return Cel.zeroInt;
+            }
+        });
+        learn("-", new Operator(10) {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isNumeric(left) && Core.isNumeric(right)) {
+                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                        return new Cel(Core.asDouble(left.ref) - Core.asDouble(right.ref));
+                    }
+                    else
+                    {
+                        return new Cel(Core.asLong(left.ref) - Core.asLong(right.ref));
+                    }
+                }
+                else if(Syntax.EMPTY.equals(left.ref) && Core.isNumeric(right))
+                {
+                    if(Core.isFloating(right.ref))
+                        return new Cel(-Core.asDouble(right.ref));
+                    else
+                        return new Cel(-Core.asLong(right.ref));
+                }
+                return Cel.zeroInt;
+
+            }
+        });
+        learn("*", new Operator(11) {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isNumeric(left) && Core.isNumeric(right)) {
+                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                        return new Cel(Core.asDouble(left.ref) * Core.asDouble(right.ref));
+                    }
+                    else
+                    {
+                        return new Cel(Core.asLong(left.ref) * Core.asLong(right.ref));
+                    }
+                }
+                return Cel.zeroInt;
+            }
+        });
+        learn("/", new Operator(11) {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isNumeric(left) && Core.isNumeric(right)) {
+                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                        return new Cel(Core.asDouble(left.ref) / Core.asDouble(right.ref));
+                    }
+                    else
+                    {
+                        return new Cel(Core.asLong(left.ref) / Core.asLong(right.ref));
+                    }
+                }
+                return Cel.zeroInt;
+            }
+        });
+        learn("%", new Operator(11) {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isNumeric(left) && Core.isNumeric(right)) {
+                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                        return new Cel(Core.asDouble(left.ref) % Core.asDouble(right.ref));
+                    }
+                    else
+                    {
+                        return new Cel(Core.asLong(left.ref) % Core.asLong(right.ref));
+                    }
+                }
+                return Cel.zeroInt;
+            }
+        });
+        learn("sin", new Procedural() {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isFloating(right)) {
+                    return new Cel(Math.sin(Core.asDouble(right.ref)));
+                }
+                return Cel.zeroInt;
+            }
+        });
+        learn("cos", new Procedural() {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isFloating(right)) {
+                    return new Cel(Math.cos(Core.asDouble(right.ref)));
+                }
+                return Cel.zeroInt;
+            }
+        });
+        learn("tan", new Procedural() {
+            @Override
+            public Cel run(Cel left, Cel right) {
+                if(Core.isFloating(right)) {
+                    return new Cel(Math.tan(Core.asDouble(right.ref)));
+                }
+                return Cel.zeroInt;
+            }
+        });
+
+
+
     }
 }

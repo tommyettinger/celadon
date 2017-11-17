@@ -5,5 +5,5 @@ package lang.celadon;
  * Created by Tommy Ettinger on 8/27/2017.
  */
 public interface Procedural {
-    void run(Manager manager);
+    Cel run(Cel left, Cel right);
 }

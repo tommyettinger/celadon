@@ -4,10 +4,6 @@ package lang.celadon;
  * Created by Tommy Ettinger on 8/27/2017.
  */
 public class Core {
-    public static final Cel yes = new Cel("true", true);
-    public static final Cel no = new Cel("false", false);
-    public static final Cel nothing = new Cel("null", null);
-
     public static long asLong(Object o)
     {
         if(o instanceof Number)
@@ -36,6 +32,7 @@ public class Core {
         return (o instanceof Double) || (o instanceof Float);
     }
 
+    /*
     public static Procedural plus = new Procedural() {
         @Override
         public void run(Manager manager) {
@@ -59,5 +56,6 @@ public class Core {
             }
         }
     };
+    */
 
 }

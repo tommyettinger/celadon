@@ -2,8 +2,6 @@ package lang.celadon;
 
 import squidpony.squidmath.OrderedMap;
 
-import java.util.Arrays;
-
 /**
  * Created by Tommy Ettinger on 1/11/2017.
  */

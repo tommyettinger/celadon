@@ -300,7 +300,7 @@ public class Table extends OrderedMap<Object, Object> implements Methodical {
     }
 
     @Override
-    public void run(Manager manager, String name) {
-
+    public Cel run(Cel right, String name) {
+        return Cel.nothing;
     }
 }

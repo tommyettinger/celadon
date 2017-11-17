@@ -11,6 +11,8 @@ public class BasicTest {
     public void testTokenizer() {
         Manager m = new Manager();
         //m.tokenize("[1, 0x2, 3.141592, alpha, 'hello, world!', 0x1.Ep1, 0xF.0p-2, `!`] (10)");
+
+        /*
         m.tokenize("[1, 0x2, 3.141592, alpha, 'hello, world!', 0x1.Ep1, ##0xF.0p-2, `!`]" +
                 "\n(10 ~!block comment!~) ; this is also a comment\n null () ( ) :pause @:+");
         System.out.println(StringKit.join(", ", m.tokens));
@@ -19,6 +21,11 @@ public class BasicTest {
         {
             System.out.println(cel.title + " : " + cel.ref);
         }
+        */
+
+        m.tokenize("4 + 8 * 5 - 7 / 3");
+        m.shunt();
+        System.out.println(StringKit.join(", ", m.items));
 
     }
 //    @Test
