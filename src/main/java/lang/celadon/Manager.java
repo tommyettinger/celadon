@@ -23,11 +23,11 @@ public class Manager extends StackMap<String, Cel> {
     /**
      * Shunting-yard output, in reverse Polish notation.
      */
-    public ArrayDeque<Cel> items = new ArrayDeque<>(256),
+    public ArrayList<Cel> items = new ArrayList<>(256);
     /**
      * Shunting-yard operator stack.
      */
-    operations = new ArrayDeque<>(128);
+    public ArrayDeque<Cel> operations = new ArrayDeque<>(128);
 
     /**
      * Direct-from-source-code Cel tokens, before shunting-yard rearrangement.
@@ -295,7 +295,7 @@ public class Manager extends StackMap<String, Cel> {
                 Operator operator = (Operator)item;
                 topOperator = operations.peekFirst();
                 while (topOperator != null && (topOperator.ref instanceof Operator) && ((Operator)topOperator.ref).precedence > operator.precedence) {
-                    items.addLast(topOperator);
+                    items.add(topOperator);
                     operations.pollFirst();
                     topOperator = operations.peekFirst();
                 }
@@ -310,7 +310,7 @@ public class Manager extends StackMap<String, Cel> {
             {
                 topOperator = operations.peekFirst();
                 while (topOperator != null && !Syntax.OPEN_PARENTHESIS.equals(topOperator.ref)) {
-                    items.addLast(topOperator);
+                    items.add(topOperator);
                     operations.pollFirst();
                     topOperator = operations.peekFirst();
                 }
@@ -318,11 +318,37 @@ public class Manager extends StackMap<String, Cel> {
             }
             else
             {
-                items.addLast(current);
+                items.add(current);
             }
         }
         items.addAll(operations);
         operations.clear();
+    }
+    
+    public void evaluate()
+    {
+        int len = items.size();
+        Cel item, left, right;
+        for (int i = 0; i < len; i++) {
+            item = resolve(items.get(i));
+            if(item.ref instanceof Procedural)
+            {
+                if(i < 2 || (left = resolve(items.get(i - 2))).ref instanceof Procedural || Syntax.CLOSE_PARENTHESIS.equals(left.ref))
+                {
+                    item = ((Procedural) item.ref).run(Cel.empty, resolve(items.remove(--i)));
+                    items.set(i, item);
+                    --len;
+                }
+                else
+                {
+                    item = ((Procedural) item.ref).run(left, resolve(items.remove(--i)));
+                    items.remove(--i);
+                    items.set(i, item);
+                    len -= 2;
+                }
+            }
+        }
+        exchange.addAll(items);
     }
 
     public void learn(String name, Object value)
@@ -337,8 +363,8 @@ public class Manager extends StackMap<String, Cel> {
         learn("+", new Operator(10) {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isNumeric(left) && Core.isNumeric(right)) {
-                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                if(Cel.isNumeric(left) && Cel.isNumeric(right)) {
+                    if (Cel.isFloating(left) || Cel.isFloating(right)) {
                         return new Cel(Core.asDouble(left.ref) + Core.asDouble(right.ref));
                     }
                     else
@@ -352,8 +378,8 @@ public class Manager extends StackMap<String, Cel> {
         learn("-", new Operator(10) {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isNumeric(left) && Core.isNumeric(right)) {
-                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                if(Cel.isNumeric(left) && Cel.isNumeric(right)) {
+                    if (Cel.isFloating(left) || Cel.isFloating(right)) {
                         return new Cel(Core.asDouble(left.ref) - Core.asDouble(right.ref));
                     }
                     else
@@ -361,9 +387,9 @@ public class Manager extends StackMap<String, Cel> {
                         return new Cel(Core.asLong(left.ref) - Core.asLong(right.ref));
                     }
                 }
-                else if(Syntax.EMPTY.equals(left.ref) && Core.isNumeric(right))
+                else if(Syntax.EMPTY.equals(left.ref) && Cel.isNumeric(right))
                 {
-                    if(Core.isFloating(right.ref))
+                    if(Cel.isFloating(right))
                         return new Cel(-Core.asDouble(right.ref));
                     else
                         return new Cel(-Core.asLong(right.ref));
@@ -375,8 +401,8 @@ public class Manager extends StackMap<String, Cel> {
         learn("*", new Operator(11) {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isNumeric(left) && Core.isNumeric(right)) {
-                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                if(Cel.isNumeric(left) && Cel.isNumeric(right)) {
+                    if (Cel.isFloating(left) || Cel.isFloating(right)) {
                         return new Cel(Core.asDouble(left.ref) * Core.asDouble(right.ref));
                     }
                     else
@@ -390,8 +416,8 @@ public class Manager extends StackMap<String, Cel> {
         learn("/", new Operator(11) {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isNumeric(left) && Core.isNumeric(right)) {
-                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                if(Cel.isNumeric(left) && Cel.isNumeric(right)) {
+                    if (Cel.isFloating(left) || Cel.isFloating(right)) {
                         return new Cel(Core.asDouble(left.ref) / Core.asDouble(right.ref));
                     }
                     else
@@ -405,8 +431,8 @@ public class Manager extends StackMap<String, Cel> {
         learn("%", new Operator(11) {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isNumeric(left) && Core.isNumeric(right)) {
-                    if (Core.isFloating(left) || Core.isFloating(right)) {
+                if(Cel.isNumeric(left) && Cel.isNumeric(right)) {
+                    if (Cel.isFloating(left) || Cel.isFloating(right)) {
                         return new Cel(Core.asDouble(left.ref) % Core.asDouble(right.ref));
                     }
                     else
@@ -420,7 +446,7 @@ public class Manager extends StackMap<String, Cel> {
         learn("sin", new Procedural() {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isFloating(right)) {
+                if(Cel.isFloating(right)) {
                     return new Cel(Math.sin(Core.asDouble(right.ref)));
                 }
                 return Cel.zeroInt;
@@ -429,7 +455,7 @@ public class Manager extends StackMap<String, Cel> {
         learn("cos", new Procedural() {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isFloating(right)) {
+                if(Cel.isFloating(right)) {
                     return new Cel(Math.cos(Core.asDouble(right.ref)));
                 }
                 return Cel.zeroInt;
@@ -438,7 +464,7 @@ public class Manager extends StackMap<String, Cel> {
         learn("tan", new Procedural() {
             @Override
             public Cel run(Cel left, Cel right) {
-                if(Core.isFloating(right)) {
+                if(Cel.isFloating(right)) {
                     return new Cel(Math.tan(Core.asDouble(right.ref)));
                 }
                 return Cel.zeroInt;

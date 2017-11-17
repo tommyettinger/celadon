@@ -27,6 +27,17 @@ public class Cel {
         this.ref = ref;
     }
 
+    public static boolean isNumeric(Cel o)
+    {
+        return o != null && o.ref != null && ((o.ref instanceof Number) || (o.ref instanceof Boolean));
+    }
+
+    public static boolean isFloating(Cel o)
+    {
+        return o != null && o.ref != null && ((o.ref instanceof Double) || (o.ref instanceof Float));
+    }
+
+
     @Override
     public String toString() {
         if(ref == null) return title == null ? "null" : title + " = UNBOUND";

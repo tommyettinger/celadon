@@ -23,9 +23,10 @@ public class BasicTest {
         }
         */
 
-        m.tokenize("4 + (8 * 5 - 7) / 3");
+        m.tokenize("(-3 + 7) * 999 / 3 + 5 ");
         m.shunt();
-        System.out.println(StringKit.join(", ", m.items));
+        m.evaluate();
+        System.out.println(StringKit.join(", ", m.exchange));
 
     }
 //    @Test
